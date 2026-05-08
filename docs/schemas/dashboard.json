@@ -1,0 +1,4 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://raw.githubusercontent.com/apache/superset/refs/tags/6.0.0/docs/static/resources/openapi.json#/components/schemas/DashboardRestApi.post"
+}
