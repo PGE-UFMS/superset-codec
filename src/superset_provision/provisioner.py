@@ -80,7 +80,7 @@ class SupersetProvisioner:
         self._resources_dir = Path(resources_dir)
         self._session: requests.Session | None = None
         self.variables = variables
-        self._database_id_map: dict[str,int] = {}
+        self._database_ids: dict[str,int] = {}
         self._dataset_id_map: dict[str, int] = {}
         self._chart_id_map: dict[str, int] = {}
         self._dashboard_id_map: dict[str, int] = {}
@@ -215,28 +215,27 @@ class SupersetProvisioner:
         """Extrai o id da resposta de criação do Superset (formatos variam)."""
         return result.get("id") or (result.get("result") or {}).get("id")
 
+    def sync_database(self, database_name: str, properties: dict):
+        if database_name in self._database_ids:
+            self._update("/api/v1/database", self._database_id[database_name], properties)
+            log.info("  Atualizado: %s", database_name)
+        else:
+            result = self._create("/api/v1/database/", properties)
+            created_id = result["id"]
+            self._database_ids[database_name] = created_id
+            log.info("  Criado: %s (id=%s)", database_name, created_id)
+
     def sync_databases(self):
         """
         Cria ou atualiza conexões de banco de dados.
         """
 
-        existing = self._list_unique_field("/api/v1/database/", "database_name")
+        self._database_ids = self._list_unique_field("/api/v1/database/", "database_name")
+        # self._database_ids.update(existing)
 
         counter = 0
         for defn in self._iter_resources("databases"):
-            name = defn["database_name"]
-            if name in existing:
-                self._update("/api/v1/database", existing[name], defn)
-                log.info("  Atualizado: %s", name)
-                self._database_id_map[name] = existing[name]
-            else:
-                result = self._create("/api/v1/database/", defn)
-                # created_id = self._resolve_id(result)
-                log.info("  Criado: %s (id=%s)", name, created_id)
-                self._database_id_map[name] = result["id"]
-                # if created_id:
-                #     self._database_id_map[name] = created_id
-            
+            self.sync_database(defn["database_name"], defn)
             counter += 1
 
         log.info("Conexões de bancos de dados sincronizadas: %d", counter)
@@ -251,8 +250,8 @@ class SupersetProvisioner:
         'columns' e 'metrics' (aplicados via PUT separado após criação).
         """
 
-        if not self._database_id_map:
-            self._database_id_map.update(self._list_unique_field("/api/v1/database/", "database_name"))
+        if not self._database_ids:
+            self._database_ids.update(self._list_unique_field("/api/v1/database/", "database_name"))
 
         existing = self._list_unique_field("/api/v1/dataset/", "table_name")
 
@@ -266,7 +265,7 @@ class SupersetProvisioner:
             main_dttm_col = defn.pop("main_dttm_col", None)  # Campo apenas de documentação
 
             if db_name:
-                db_id = self._database_id_map.get(db_name)
+                db_id = self._database_ids.get(db_name)
                 if db_id is None:
                     log.warning("  Database '%s' não encontrado — pulando dataset '%s'.", db_name, table_name)
                     continue
