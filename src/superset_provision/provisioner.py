@@ -4,6 +4,9 @@ import re
 import requests
 from pathlib import Path
 from typing import overload, Iterable, Sequence
+from .models import ChartRef, DashboardRef, DatabaseRef, DatasetRef
+
+from uuid import UUID
 
 log = logging.getLogger(__name__)
 
@@ -65,6 +68,12 @@ class SupersetProvisioner:
     - Dataset:          [[catalog.]schema.]table_name
     - Chart (slice):    slice_name
     - Dashboard:        slug
+
+    Alguns recursos referenciam outros recursos por id inteiro:
+    - Dataset:          database
+    - Chart (slice):    datasource_id (Dataset), datasource_type
+        - Optional:     datasource_name
+    - Dashboard:        charts[].slice_name
     """
 
     def __init__(self,
@@ -80,10 +89,10 @@ class SupersetProvisioner:
         self._resources_dir = Path(resources_dir)
         self._session: requests.Session | None = None
         self.variables = variables
-        self._database_ids: dict[str,int] = {}
-        self._dataset_id_map: dict[str, int] = {}
-        self._chart_id_map: dict[str, int] = {}
-        self._dashboard_id_map: dict[str, int] = {}
+        self._database_map: dict[str,DatabaseRef] = {}
+        self._dataset_map: dict[str,DatasetRef] = {}
+        self._chart_id_map: dict[str,ChartRef] = {}
+        self._dashboard_id_map: dict[str,DashboardRef] = {}
 
     @property
     def session(self) -> requests.Session:
@@ -158,42 +167,42 @@ class SupersetProvisioner:
                 log.warning("Ignorando %s: %s", path.name, e)
 
     def _list_resources(self, api_path: str, *columns: str) -> (list[int], list[dict]):
-        assert len(columns) > 0
+        query = {"page_size": -1}
+        if len(columns) > 0:
+            query["columns"] = list(columns)
 
         resp = self.session.get(
             f"{self.url}{api_path}",
-            params={"q": json.dumps({"page_size": -1, "columns": list(columns)})},
+            params={"q": json.dumps(query)},
             timeout=15,
         )
         resp.raise_for_status()
         data = resp.json()
         return data["ids"], data["result"]
 
-    def _list_unique_fields(self, api_path: str, *fields: str) -> dict[tuple[str,...],int]:
-        """Retorna {(field,...): id} para todos os recursos existentes na API."""
-        ids, result = self._list_resources(api_path, *fields)
-        
-        resources = {}
-        for id, item in zip(ids, result, strict=True):
+    @staticmethod
+    def _map_by_fields(ids: list[int], items: list[dict], *fields: str) -> dict[tuple[str,...],int]:
+        """Retorna {(field,...): item} para todos os recursos existentes na API."""
+        d = {}
+        for id, item in zip(ids, items, strict=True):
             key = tuple(_get_by_path(item, field) for field in fields)
-            if key in resources:
+            if key in d:
                 log.warning(f"Recurso com chave {key} duplicada")
-            resources[key] = id
+            item["id"] = id
+            d[key] = id
+        return d
 
-        return resources
-
-    def _list_unique_field(self, api_path: str, field: str) -> dict[str, int]:
-        """Retorna {field: id} para todos os recursos existentes na API."""
-        ids, result = self._list_resources(api_path, field)
-        
-        resources = {}
-        for id, item in zip(ids, result, strict=True):
+    @staticmethod
+    def _map_by_field(ids: list[int], items: list[dict], field: str) -> dict[str,int]:
+        """Retorna {field: item} para todos os recursos existentes na API."""
+        d = {}
+        for id, item in zip(ids, items, strict=True):
             key = _get_by_path(item, field)
-            if key in resources:
+            if key in d:
                 log.warning(f"Recurso com chave '{key}' duplicada")
-            resources[key] = id
-
-        return resources
+            item["id"] = id
+            d[key] = item
+        return d
 
     def _create(self, api_path: str, payload: dict) -> dict:
         log.debug("POST %s\n  payload: %s", api_path, json.dumps(payload, indent=2, ensure_ascii=False))
@@ -215,23 +224,39 @@ class SupersetProvisioner:
         """Extrai o id da resposta de criação do Superset (formatos variam)."""
         return result.get("id") or (result.get("result") or {}).get("id")
 
+    def list_databases(self) -> Iterable[DatabaseRef]:
+        ids, items = self._list_resources("/api/v1/database/", "database_name", "uuid")
+        self._database_map = {
+            k: DatabaseRef(**v)
+            for k, v in self._map_by_field(ids, items, "database_name").items()
+        }
+        return self._database_map.values()
+
+    def list_datasets(self) -> Iterable[DatasetRef]:
+        ids, items = self._list_resources("/api/v1/dataset/", "catalog", "schema", "table_name", "uuid")
+        self._dataset_map = {
+            k: DatasetRef(**v)
+            for k, v in self._map_by_field(ids, items, "table_name").items()
+        }
+        return self._dataset_map.values()
+
     def sync_database(self, database_name: str, properties: dict):
-        if database_name in self._database_ids:
-            self._update("/api/v1/database", self._database_id[database_name], properties)
+        if database_name in self._database_map:
+            ref = self._database_map[database_name]
+            self._update("/api/v1/database", ref.id, properties)
             log.info("  Atualizado: %s", database_name)
         else:
             result = self._create("/api/v1/database/", properties)
-            created_id = result["id"]
-            self._database_ids[database_name] = created_id
-            log.info("  Criado: %s (id=%s)", database_name, created_id)
+            ref = DatabaseRef(result["id"], result["uuid"], database_name)
+            self._database_map[database_name] = ref
+            log.info("  Criado: %s (id=%s)", database_name, ref.id)
 
     def sync_databases(self):
         """
         Cria ou atualiza conexões de banco de dados.
         """
 
-        self._database_ids = self._list_unique_field("/api/v1/database/", "database_name")
-        # self._database_ids.update(existing)
+        self.list_databases()
 
         counter = 0
         for defn in self._iter_resources("databases"):
@@ -239,6 +264,9 @@ class SupersetProvisioner:
             counter += 1
 
         log.info("Conexões de bancos de dados sincronizadas: %d", counter)
+
+    def sync_dataset(self, table_name: str, schema: str | None, catalog: str | None, properties: dict):
+        pass
 
     def sync_datasets(self):
         """
@@ -250,10 +278,10 @@ class SupersetProvisioner:
         'columns' e 'metrics' (aplicados via PUT separado após criação).
         """
 
-        if not self._database_ids:
-            self._database_ids.update(self._list_unique_field("/api/v1/database/", "database_name"))
+        self.list_databases()
+        self.list_datasets()
 
-        existing = self._list_unique_field("/api/v1/dataset/", "table_name")
+        # existing = self._list_unique_field("/api/v1/dataset/", "table_name")
 
         for defn in self._iter_resources("datasets"):
             table_name = defn["table_name"]
@@ -265,7 +293,7 @@ class SupersetProvisioner:
             main_dttm_col = defn.pop("main_dttm_col", None)  # Campo apenas de documentação
 
             if db_name:
-                db_id = self._database_ids.get(db_name)
+                db_id = self._database_map.get(db_name)
                 if db_id is None:
                     log.warning("  Database '%s' não encontrado — pulando dataset '%s'.", db_name, table_name)
                     continue
@@ -279,7 +307,7 @@ class SupersetProvisioner:
                     update_payload["main_dttm_col"] = main_dttm_col
                 self._update("/api/v1/dataset", ds_id, update_payload)
                 log.info("  Atualizado: %s", table_name)
-                self._dataset_id_map[table_name] = ds_id
+                self._dataset_map[table_name] = ds_id
             else:
                 # main_dttm_col NÃO é aceito no POST, apenas no PUT
                 # Removê-lo do defn se estiver lá (não deveria estar)
@@ -290,7 +318,7 @@ class SupersetProvisioner:
                     ds_id = self._resolve_id(result)
                     log.info("  Criado: %s (id=%s)", table_name, ds_id)
                     if ds_id:
-                        self._dataset_id_map[table_name] = ds_id
+                        self._dataset_map[table_name] = ds_id
                 except RuntimeError as exc:
                     if "422" in str(exc) and "already exists" in str(exc):
                         log.warning("  Dataset '%s' já existe, buscando ID via filtro...", table_name)
@@ -299,7 +327,7 @@ class SupersetProvisioner:
                         for item in r.json().get("result", []):
                             if not db_name or item.get("database", {}).get("id") == defn.get("database"):
                                 ds_id = item["id"]
-                                self._dataset_id_map[table_name] = ds_id
+                                self._dataset_map[table_name] = ds_id
                                 log.info("  Encontrado via filtro: %s (id=%s)", table_name, ds_id)
                                 break
                         else:
@@ -308,7 +336,7 @@ class SupersetProvisioner:
                         raise
 
             # Aplicar métricas, colunas e coluna temporal em PUT separado
-            if (metrics or columns or main_dttm_col) and table_name in self._dataset_id_map:
+            if (metrics or columns or main_dttm_col) and table_name in self._dataset_map:
                 overrides: dict[str, Any] = {}
                 if metrics:
                     overrides["metrics"] = metrics
@@ -316,7 +344,7 @@ class SupersetProvisioner:
                     overrides["columns"] = columns
                 if main_dttm_col:
                     overrides["main_dttm_col"] = main_dttm_col
-                self._update("/api/v1/dataset", self._dataset_id_map[table_name], overrides)
+                self._update("/api/v1/dataset", self._dataset_map[table_name], overrides)
                 log.debug("  Métricas/colunas/coluna temporal aplicadas para: %s", table_name)
 
     def sync_charts(self):
@@ -337,8 +365,8 @@ class SupersetProvisioner:
             log.info("Nenhuma definição de chart encontrada — pulando.")
             return
 
-        if not self._dataset_id_map:
-            self._dataset_id_map.update(self._list_unique_field("/api/v1/dataset/", "table_name"))
+        if not self._dataset_map:
+            self._dataset_map.update(self._list_unique_field("/api/v1/dataset/", "table_name"))
 
         existing = self._list_unique_field("/api/v1/chart/", "slice_name")
         log.info("Sincronizando %d chart(s)...", len(resources))
@@ -352,7 +380,7 @@ class SupersetProvisioner:
             # Resolve datasource_table → datasource_id
             ds_table = defn.pop("datasource_table", None)
             if ds_table:
-                ds_id = self._dataset_id_map.get(ds_table)
+                ds_id = self._dataset_map.get(ds_table)
                 if ds_id is None:
                     log.warning("  Dataset '%s' não encontrado — pulando chart '%s'.", ds_table, name)
                     continue
@@ -467,7 +495,7 @@ class SupersetProvisioner:
                 charts_in_scope = [item["chart_id"] for item in charts_with_ids]
                 native_filter_config = _build_native_filters(
                     native_filters_def,
-                    self._dataset_id_map,
+                    self._dataset_map,
                     charts_in_scope=charts_in_scope,
                 )
 
@@ -548,7 +576,7 @@ class SupersetProvisioner:
         """
         pipeline: list[tuple[str, Any]] = [
             ("databases",   self.sync_databases),
-            ("datasets",    self.sync_datasets),
+            # ("datasets",    self.sync_datasets),
             # ("charts",      self.sync_charts),
             # ("dashboards",  self.sync_dashboards),
         ]
