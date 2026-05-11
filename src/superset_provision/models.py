@@ -1,7 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 from typing import ClassVar, Optional
 from uuid import UUID
+import warnings
 
+warnings.filterwarnings(
+    "ignore",
+    message=r'.*Field name "schema".*',
+)
 
 class Table(BaseModel):
     catalog: Optional[str] = None
