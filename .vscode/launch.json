@@ -8,7 +8,9 @@
       "module": "superset_provision.cli",
       "python": "${workspaceFolder}/.venv/bin/python",
       "cwd": "${workspaceFolder}",
-      "args": [],
+      "args": [
+        "--vars", ".env"
+      ],
       "envFile": "${workspaceFolder}/.env",
       "justMyCode": false
     }

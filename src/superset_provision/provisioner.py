@@ -13,9 +13,17 @@ log = logging.getLogger(__name__)
 def _interpolate(text: str, variables: dict[str]) -> str:
     """Replace ``${VAR}`` with the corresponding variable value.
 
-    Unknown variables are left as-is (i.e. ``${MISSING}`` stays ``${MISSING}``).
+    Unknown variables are left as-is (i.e. ``${MISSING}`` stays ``${MISSING}``)
+    and a warning is logged for each missing name.
     """
-    return re.sub(r"\$\{([^}]+)\}", lambda m: variables.get(m.group(1), m.group(0)), text)
+    def _replace(m: re.Match) -> str:
+        name = m.group(1)
+        if name not in variables:
+            log.warning("Variável de interpolação não definida: ${%s}", name)
+            return m.group(0)
+        return variables[name]
+
+    return re.sub(r"\$\{([^}]+)\}", _replace, text)
 
 def _get_by_path(d: dict, path: str, default=None, sep="."):
     """Acessa valores em dicionários aninhados usando uma notação de caminho.

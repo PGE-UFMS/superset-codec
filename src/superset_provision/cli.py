@@ -1,7 +1,8 @@
-import argparse, os, sys
+import argparse
 import logging
+import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from . import SupersetProvisioner
 
 def main():
@@ -30,24 +31,36 @@ def main():
         default=os.getenv("SUPERSET_ADMIN_PASSWORD", "admin"),
         help="Senha do usuário admin.",
     )
+    parser.add_argument(
+        "--vars",
+        default=None,
+        help="Arquivo de variáveis para interpolação",
+    )
+    parser.add_argument(
+        "--with-env",
+        action="store_true",
+        help="Mescla as variáveis do ambiente com as variáveis do arquivo (arquivo tem precedência).",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG, format="%(levelname)-8s %(message)s")
     logging.debug("URL: %s | usuário: %s", args.url, args.user)
 
-    ep = Path(__file__) / ".env"
-    if ep.exists():
-        load_dotenv(ep, override=False)
-        logging.info("Loaded .env")
+    variables: dict[str, str] = {}
+    if args.with_env:
+        variables.update(os.environ)
+    if args.vars:
+        vp = Path(args.vars)
+        if not vp.exists():
+            parser.error(f"Arquivo de variáveis não encontrado: {vp}")
+        else:
+            file_vars = {k: v for k, v in dotenv_values(vp).items() if v is not None}
+            variables.update(file_vars)
+            logging.info("Carregadas %d variáveis de %s", len(file_vars), vp)
 
-
-    provisioner = SupersetProvisioner(args.url, args.user, args.password, variables=os.environ)
-    try:
-        provisioner.sync_all(steps=args.only)
-        logging.info("Provisionamento concluído.")
-    except Exception as exc:
-        logging.error("Provisionamento falhou: %s", exc)
-        sys.exit(1)
+    provisioner = SupersetProvisioner(args.url, args.user, args.password, variables=variables)
+    provisioner.sync_all(steps=args.only)
+    logging.info("Provisionamento concluído.")
 
 
 if __name__ == "__main__":
