@@ -268,7 +268,11 @@ class SupersetProvisioner:
             log.info("  Atualizado: %s", database_name)
         else:
             result = self._create("/api/v1/database/", properties)
-            ref = DatabaseRef(result["id"], result["uuid"], database_name)
+            ref = DatabaseRef(
+                id=result["id"],
+                uuid=result["uuid"],
+                database_name=database_name
+            )
             self._database_map[database_name] = ref
             log.info("  Criado: %s (id=%s)", database_name, ref.id)
 
@@ -287,7 +291,37 @@ class SupersetProvisioner:
         log.info("Conexões de bancos de dados sincronizadas: %d", counter)
 
     def sync_dataset(self, table_name: str, schema: str | None, catalog: str | None, properties: dict):
-        pass
+        # TODO Trocar para database_name para não confundir o database: str com o database: int
+        props = properties.copy()
+        db_name = props.pop("database", None)
+        db_id = None
+        if db_name:
+            db_ref = self._database_map.get(db_name)
+            if db_ref is None:
+                log.warning("  Database '%s' não encontrado — pulando dataset '%s'.", db_name, table_name)
+                return
+            db_id = db_ref.id
+
+        if table_name not in self._dataset_map:
+            creation_props = {k: props[k] for k in DatasetRef.CREATION_PARAMS if k in props}
+            if db_id is not None:
+                creation_props["database"] = db_id
+            result = self._create("/api/v1/dataset/", creation_props)
+            ref = DatasetRef(
+                id=result["id"],
+                uuid=result.get("uuid"),
+                catalog=catalog,
+                schema=schema,
+                table_name=table_name,
+                database=db_id,
+            )
+            self._dataset_map[table_name] = ref
+            log.info("  Criado: %s (id=%s)", ref.table_name, ref.id)
+
+        # PUT /api/v1/dataset/ não aceita 'database'; aplica demais campos
+        # (inclui metrics, columns e main_dttm_col, que o POST também não aceita)
+        self._update("/api/v1/dataset", self._dataset_map[table_name].id, props)
+        log.info("  Atualizado: %s", table_name)
 
     def sync_datasets(self):
         """
@@ -298,75 +332,20 @@ class SupersetProvisioner:
         Opcionalmente: 'schema', 'sql' (para datasets virtuais),
         'columns' e 'metrics' (aplicados via PUT separado após criação).
         """
-
         self.list_databases()
         self.list_datasets()
 
-        # existing = self._list_unique_field("/api/v1/dataset/", "table_name")
-
+        counter = 0
         for defn in self._iter_resources("datasets"):
-            table_name = defn["table_name"]
-            db_name = defn.pop("database", None)
+            self.sync_dataset(
+                defn["table_name"],
+                defn.get("schema"),
+                defn.get("catalog"),
+                defn,
+            )
+            counter += 1
 
-            # Extrair campos que serão aplicados via PUT separado
-            metrics = defn.pop("metrics", None)
-            columns = defn.pop("columns", None)
-            main_dttm_col = defn.pop("main_dttm_col", None)  # Campo apenas de documentação
-
-            if db_name:
-                db_id = self._database_map.get(db_name)
-                if db_id is None:
-                    log.warning("  Database '%s' não encontrado — pulando dataset '%s'.", db_name, table_name)
-                    continue
-                defn["database"] = db_id
-
-            if table_name in existing:
-                ds_id = existing[table_name]
-                # PUT /api/v1/dataset/ não aceita o campo 'database'
-                update_payload = {k: v for k, v in defn.items() if k != "database"}
-                if main_dttm_col:
-                    update_payload["main_dttm_col"] = main_dttm_col
-                self._update("/api/v1/dataset", ds_id, update_payload)
-                log.info("  Atualizado: %s", table_name)
-                self._dataset_map[table_name] = ds_id
-            else:
-                # main_dttm_col NÃO é aceito no POST, apenas no PUT
-                # Removê-lo do defn se estiver lá (não deveria estar)
-                defn.pop("main_dttm_col", None)
-                # Fallback 422 "already exists" — busca por filtro
-                try:
-                    result = self._create("/api/v1/dataset/", defn)
-                    ds_id = self._resolve_id(result)
-                    log.info("  Criado: %s (id=%s)", table_name, ds_id)
-                    if ds_id:
-                        self._dataset_map[table_name] = ds_id
-                except RuntimeError as exc:
-                    if "422" in str(exc) and "already exists" in str(exc):
-                        log.warning("  Dataset '%s' já existe, buscando ID via filtro...", table_name)
-                        q = json.dumps({"filters": [{"col": "table_name", "opr": "eq", "value": table_name}]})
-                        r = self.session.get(f"{self.url}/api/v1/dataset/", params={"q": q}, timeout=15)
-                        for item in r.json().get("result", []):
-                            if not db_name or item.get("database", {}).get("id") == defn.get("database"):
-                                ds_id = item["id"]
-                                self._dataset_map[table_name] = ds_id
-                                log.info("  Encontrado via filtro: %s (id=%s)", table_name, ds_id)
-                                break
-                        else:
-                            raise
-                    else:
-                        raise
-
-            # Aplicar métricas, colunas e coluna temporal em PUT separado
-            if (metrics or columns or main_dttm_col) and table_name in self._dataset_map:
-                overrides: dict[str, Any] = {}
-                if metrics:
-                    overrides["metrics"] = metrics
-                if columns:
-                    overrides["columns"] = columns
-                if main_dttm_col:
-                    overrides["main_dttm_col"] = main_dttm_col
-                self._update("/api/v1/dataset", self._dataset_map[table_name], overrides)
-                log.debug("  Métricas/colunas/coluna temporal aplicadas para: %s", table_name)
+        log.info("Datasets sincronizados: %d", counter)
 
     def sync_charts(self):
         """
