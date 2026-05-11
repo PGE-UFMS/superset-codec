@@ -3,7 +3,7 @@ import json
 import re
 import requests
 from pathlib import Path
-from typing import overload, Iterable, Sequence
+from typing import Iterable, Sequence
 from .models import ChartRef, DashboardRef, DatabaseRef, DatasetRef
 
 from uuid import UUID
@@ -91,8 +91,8 @@ class SupersetProvisioner:
         self.variables = variables
         self._database_map: dict[str,DatabaseRef] = {}
         self._dataset_map: dict[str,DatasetRef] = {}
-        self._chart_id_map: dict[str,ChartRef] = {}
-        self._dashboard_id_map: dict[str,DashboardRef] = {}
+        self._chart_map: dict[str,ChartRef] = {}
+        self._dashboard_map: dict[str,DashboardRef] = {}
 
     @property
     def session(self) -> requests.Session:
@@ -226,19 +226,40 @@ class SupersetProvisioner:
 
     def list_databases(self) -> Iterable[DatabaseRef]:
         ids, items = self._list_resources("/api/v1/database/", "database_name", "uuid")
-        self._database_map = {
+        d = {
             k: DatabaseRef(**v)
             for k, v in self._map_by_field(ids, items, "database_name").items()
         }
-        return self._database_map.values()
+        self._database_map = d
+        return d.values()
 
     def list_datasets(self) -> Iterable[DatasetRef]:
         ids, items = self._list_resources("/api/v1/dataset/", "catalog", "schema", "table_name", "uuid")
-        self._dataset_map = {
+        d = {
             k: DatasetRef(**v)
+            # TODO incluir catalog e schema
             for k, v in self._map_by_field(ids, items, "table_name").items()
         }
-        return self._dataset_map.values()
+        self._dataset_map = d
+        return d.values()
+
+    def list_charts(self) -> Iterable[ChartRef]:
+        ids, items = self._list_resources("/api/v1/chart/", "slice_name", "datasource_id", "datasource_type", "uuid")
+        d = {
+            k: ChartRef(**v)
+            for k, v in self._map_by_field(ids, items, "slice_name").items()
+        }
+        self._chart_map = d
+        return d.values()
+    
+    def list_dashboards(self) -> Iterable[DashboardRef]:
+        ids, items = self._list_resources("/api/v1/chart/", "slug", "dashboard_title", "uuid")
+        d = {
+            k: DashboardRef(**v)
+            for k, v in self._map_by_field(ids, items, "slug").items()
+        }
+        self._dashboard_map = d
+        return d.values()
 
     def sync_database(self, database_name: str, properties: dict):
         if database_name in self._database_map:
@@ -408,7 +429,7 @@ class SupersetProvisioner:
             if name in existing:
                 self._update("/api/v1/chart", existing[name], defn)
                 log.info("  Atualizado: %s", name)
-                self._chart_id_map[name] = existing[name]
+                self._chart_map[name] = existing[name]
             else:
                 try:
                     result = self._create("/api/v1/chart/", defn)
@@ -423,7 +444,7 @@ class SupersetProvisioner:
                 created_id = self._resolve_id(result)
                 log.info("  Criado: %s (id=%s)", name, created_id)
                 if created_id:
-                    self._chart_id_map[name] = created_id
+                    self._chart_map[name] = created_id
 
     def sync_dashboards(self):
         """
@@ -448,8 +469,8 @@ class SupersetProvisioner:
             log.info("Nenhuma definição de dashboard encontrada — pulando.")
             return
 
-        if not self._chart_id_map:
-            self._chart_id_map.update(self._list_unique_field("/api/v1/chart/", "slice_name"))
+        if not self._chart_map:
+            self._chart_map.update(self._list_unique_field("/api/v1/chart/", "slice_name"))
 
         existing = self._list_unique_field("/api/v1/dashboard/", "dashboard_title")
         log.info("Sincronizando %d dashboard(s)...", len(resources))
@@ -473,7 +494,7 @@ class SupersetProvisioner:
             missing: list[str] = []
             for entry in chart_entries:
                 slice_name = entry["slice_name"]
-                chart_id = self._chart_id_map.get(slice_name)
+                chart_id = self._chart_map.get(slice_name)
                 if chart_id is None:
                     missing.append(slice_name)
                     continue
@@ -545,13 +566,13 @@ class SupersetProvisioner:
                 dash_id = self._resolve_id(result)
                 log.info("  Criado: %s (id=%s)", title, dash_id)
                 if dash_id:
-                    self._dashboard_id_map[title] = dash_id
+                    self._dashboard_map[title] = dash_id
 
             # PUT aplica layout + json_metadata — é aqui que os charts são associados
             if dash_id:
                 self._update("/api/v1/dashboard", dash_id, full_payload)
                 log.info("  Layout e charts aplicados: %s", title)
-                self._dashboard_id_map[title] = dash_id
+                self._dashboard_map[title] = dash_id
 
                 # Habilitar embedding e armazenar UUID no cache
                 try:
