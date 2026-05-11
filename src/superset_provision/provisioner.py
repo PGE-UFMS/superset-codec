@@ -2,10 +2,12 @@ import logging
 import json
 import re
 import requests
+import uuid
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 from .models import ChartRef, DashboardRef, DatabaseRef, DatasetRef
 
+from collections import defaultdict
 from uuid import UUID
 
 log = logging.getLogger(__name__)
@@ -164,7 +166,7 @@ class SupersetProvisioner:
             log.debug("Diretório '%s' não encontrado — pulando.", directory)
             return
 
-        for path in sorted(directory.glob("*.json")):
+        for path in sorted(directory.glob("**/*.json")):
             try:
                 text = _interpolate(path.read_text(encoding="utf-8"), self.variables)
                 data = json.loads(text)
@@ -261,7 +263,7 @@ class SupersetProvisioner:
         return d.values()
     
     def list_dashboards(self) -> Iterable[DashboardRef]:
-        ids, items = self._list_resources("/api/v1/chart/", "slug", "dashboard_title", "uuid")
+        ids, items = self._list_resources("/api/v1/dashboard/", "slug", "dashboard_title", "uuid")
         d = {
             k: DashboardRef(**v)
             for k, v in self._map_by_field(ids, items, "slug").items()
@@ -357,6 +359,65 @@ class SupersetProvisioner:
 
         log.info("Datasets sincronizados: %d", counter)
 
+    def sync_chart(self, slice_name: str, properties: dict):
+        props = properties.copy()
+
+        viz_type = props["viz_type"]
+        params = props.get("params", {})
+
+        # Resolve datasource_table → datasource_id
+        ds_table = props.pop("datasource_table", None)
+        if ds_table:
+            ds_ref = self._dataset_map.get(ds_table)
+            if ds_ref is None:
+                log.warning("  Dataset '%s' não encontrado — pulando chart '%s'.", ds_table, slice_name)
+                return
+            ds_id = ds_ref.id
+            props["datasource_id"] = ds_id
+            props.setdefault("datasource_type", "table")
+        else:
+            ds_id = props["datasource_id"]
+
+        # form_data com datasource no formato "id__table" (obrigatório pelo Superset)
+        form_data: dict[str, Any] = {
+            "datasource": f"{ds_id}__table",
+            "viz_type": viz_type,
+            "adhoc_filters": [],
+            **params,
+        }
+
+        # Serializa params como string JSON (formato esperado pela API)
+        props["params"] = json.dumps(form_data)
+
+        # query_context — necessário para o Superset 4.x executar a query ao renderizar
+        props["query_context"] = _build_query_context(viz_type, ds_id, params)
+
+        if slice_name in self._chart_map:
+            ref = self._chart_map[slice_name]
+            self._update("/api/v1/chart", ref.id, props)
+            log.info("  Atualizado: %s", slice_name)
+        else:
+            try:
+                response = self._create("/api/v1/chart/", props)
+            except RuntimeError as exc:
+                if "500" in str(exc):
+                    # Fallback sem query_context
+                    log.warning("  500 ao criar '%s', retentando sem query_context...", slice_name)
+                    fallback = {**props, "query_context": ""}
+                    response = self._create("/api/v1/chart/", fallback)
+                else:
+                    raise
+            result = response.get("result") or {}
+            ref = ChartRef(
+                id=response["id"],
+                uuid=result.get("uuid"),
+                slice_name=slice_name,
+                datasource_id=ds_id,
+                datasource_type=props.get("datasource_type", "table"),
+            )
+            self._chart_map[slice_name] = ref
+            log.info("  Criado: %s (id=%s)", slice_name, ref.id)
+
     def sync_charts(self):
         """
         Cria ou atualiza charts.
@@ -370,70 +431,128 @@ class SupersetProvisioner:
         O campo 'query_context' é gerado automaticamente a partir de 'params'.
         Sem ele, o Superset 4.x retorna "Empty query?" ao renderizar o chart.
         """
-        resources = list(self._iter_resources("charts"))
-        if not resources:
-            log.info("Nenhuma definição de chart encontrada — pulando.")
-            return
+        self.list_datasets()
+        self.list_charts()
 
-        if not self._dataset_map:
-            self._dataset_map.update(self._list_unique_field("/api/v1/dataset/", "table_name"))
+        counter = 0
+        for defn in self._iter_resources("charts"):
+            self.sync_chart(defn["slice_name"], defn)
+            counter += 1
 
-        existing = self._list_unique_field("/api/v1/chart/", "slice_name")
-        log.info("Sincronizando %d chart(s)...", len(resources))
+        log.info("Charts sincronizados: %d", counter)
 
-        for defn in resources:
-            defn = dict(defn)
-            name = defn["slice_name"]
-            viz_type = defn["viz_type"]
-            params = defn.get("params", {})
+    def sync_dashboard(self, slug: str, properties: dict):
+        defn = dict(properties)
+        title = defn["dashboard_title"]
+        raw_charts = defn.pop("charts", [])
+        native_filters_def = defn.pop("native_filters", [])
 
-            # Resolve datasource_table → datasource_id
-            ds_table = defn.pop("datasource_table", None)
-            if ds_table:
-                ds_id = self._dataset_map.get(ds_table)
-                if ds_id is None:
-                    log.warning("  Dataset '%s' não encontrado — pulando chart '%s'.", ds_table, name)
-                    continue
-                defn["datasource_id"] = ds_id
-                defn.setdefault("datasource_type", "table")
+        # Normaliza charts para lista de objetos com slice_name + grid info
+        chart_entries: list[dict] = []
+        for idx, c in enumerate(raw_charts):
+            if isinstance(c, str):
+                chart_entries.append({"slice_name": c, "row": idx, "col": 0, "width": 4, "height": 50})
             else:
-                ds_id = defn.get("datasource_id")
+                chart_entries.append(c)
 
-            # form_data com datasource no formato "id__table" (obrigatório pelo Superset)
-            form_data: dict[str, Any] = {
-                "viz_type": viz_type,
-                "adhoc_filters": [],
-                **params,
+        # Resolve slice_name → chart_id + uuid via _chart_map
+        charts_with_ids: list[dict] = []
+        missing: list[str] = []
+        for entry in chart_entries:
+            slice_name = entry["slice_name"]
+            chart_ref = self._chart_map.get(slice_name)
+            if chart_ref is None:
+                missing.append(slice_name)
+                continue
+            charts_with_ids.append({
+                **entry,
+                "chart_id": chart_ref.id,
+                "uuid": str(chart_ref.uuid) if chart_ref.uuid else "",
+            })
+
+        if missing:
+            log.warning("  Charts não encontrados (ignorados): %s", missing)
+
+        position_json = _build_position_json(charts_with_ids, title=title)
+
+        # Filtros nativos
+        native_filter_config: list[dict] = []
+        if native_filters_def:
+            charts_in_scope = [item["chart_id"] for item in charts_with_ids]
+            native_filter_config = _build_native_filters(
+                native_filters_def,
+                {k: v.id for k, v in self._dataset_map.items()},
+                charts_in_scope=charts_in_scope,
+            )
+
+        # json_metadata.positions é o que DashboardDAO.set_dash_metadata usa
+        # para associar charts ao dashboard. Sem essa chave, os charts não
+        # aparecem mesmo que position_json esteja correto.
+        json_metadata: dict[str, Any] = {
+            "native_filter_configuration": native_filter_config,
+            "timed_refresh_immune_slices": [],
+            "expanded_slices": {},
+            "refresh_frequency": 0,
+            "color_scheme": "",
+            "label_colors": {},
+            "shared_label_colors": {},
+            "color_scheme_domain": [],
+            "cross_filters_enabled": True,
+            "chart_configuration": {},
+            "global_chart_configuration": {
+                "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
+                "chartsInScope": [],
+            },
+            "filter_bar_orientation": defn.get("filter_bar_orientation", "HORIZONTAL"),
+            "default_filters": "{}",
+            "positions": position_json,
+        }
+
+        full_payload: dict[str, Any] = {
+            "dashboard_title": title,
+            "slug": defn.get("slug"),
+            "published": defn.get("published", False),
+            "position_json": json.dumps(position_json),
+            "json_metadata": json.dumps(json_metadata),
+        }
+
+        if slug in self._dashboard_map:
+            ref = self._dashboard_map[slug]
+            log.info("  Atualizando: %s (id=%s)", title, ref.id)
+        else:
+            # POST primeiro (sem layout) — Superset 4.x não associa charts no POST
+            create_payload = {
+                "dashboard_title": title,
+                "slug": defn.get("slug"),
+                "published": defn.get("published", False),
             }
-            if ds_id:
-                form_data["datasource"] = f"{ds_id}__table"
+            response = self._create("/api/v1/dashboard/", create_payload)
+            result = response.get("result") or {}
+            ref = DashboardRef(
+                id=response["id"],
+                uuid=result.get("uuid"),
+                slug=slug,
+                dashboard_title=title,
+            )
+            self._dashboard_map[slug] = ref
+            log.info("  Criado: %s (id=%s)", title, ref.id)
 
-            # Serializa params como string JSON (formato esperado pela API)
-            defn["params"] = json.dumps(form_data)
+        # PUT aplica layout + json_metadata — é aqui que os charts são associados
+        self._update("/api/v1/dashboard", ref.id, full_payload)
+        log.info("  Layout e charts aplicados: %s", title)
 
-            # query_context — necessário para o Superset 4.x executar a query ao renderizar
-            if ds_id:
-                defn["query_context"] = _build_query_context(viz_type, ds_id, params)
-
-            if name in existing:
-                self._update("/api/v1/chart", existing[name], defn)
-                log.info("  Atualizado: %s", name)
-                self._chart_map[name] = existing[name]
-            else:
-                try:
-                    result = self._create("/api/v1/chart/", defn)
-                except RuntimeError as exc:
-                    if "500" in str(exc):
-                        # Fallback sem query_context
-                        log.warning("  500 ao criar '%s', retentando sem query_context...", name)
-                        defn_fallback = {**defn, "query_context": ""}
-                        result = self._create("/api/v1/chart/", defn_fallback)
-                    else:
-                        raise
-                created_id = self._resolve_id(result)
-                log.info("  Criado: %s (id=%s)", name, created_id)
-                if created_id:
-                    self._chart_map[name] = created_id
+        # Habilitar embedding e armazenar UUID no cache
+        try:
+            embed_uuid = _enable_embedding(self.session, self.url, ref.id)
+            log.info("  Embedding habilitado: uuid=%s", embed_uuid)
+            log.info("  Configure no .env: VITE_DASHBOARD_%s_UUID=%s",
+                     defn.get("slug", title).upper().replace("-", "_"), embed_uuid)
+            # Salva UUID no cache para referência posterior
+            _cache = _load_ids_cache()
+            _cache.setdefault("embed_uuids", {})[title] = embed_uuid
+            _save_ids_cache(_cache)
+        except Exception as exc:
+            log.warning("  Não foi possível habilitar embedding: %s", exc)
 
     def sync_dashboards(self):
         """
@@ -453,128 +572,16 @@ class SupersetProvisioner:
         A associação de charts é feita via json_metadata.positions (DashboardDAO).
         O embedding é habilitado automaticamente após criação/atualização.
         """
-        resources = list(self._iter_resources("dashboards"))
-        if not resources:
-            log.info("Nenhuma definição de dashboard encontrada — pulando.")
-            return
+        self.list_charts()
+        self.list_dashboards()
 
-        if not self._chart_map:
-            self._chart_map.update(self._list_unique_field("/api/v1/chart/", "slice_name"))
+        counter = 0
+        for defn in self._iter_resources("dashboards"):
+            slug = defn.get("slug") or defn["dashboard_title"]
+            self.sync_dashboard(slug, defn)
+            counter += 1
 
-        existing = self._list_unique_field("/api/v1/dashboard/", "dashboard_title")
-        log.info("Sincronizando %d dashboard(s)...", len(resources))
-
-        for defn in resources:
-            defn = dict(defn)
-            title = defn["dashboard_title"]
-            raw_charts = defn.pop("charts", [])
-            native_filters_def = defn.pop("native_filters", [])
-
-            # Normaliza charts para lista de objetos com slice_name + grid info
-            chart_entries: list[dict] = []
-            for idx, c in enumerate(raw_charts):
-                if isinstance(c, str):
-                    chart_entries.append({"slice_name": c, "row": idx, "col": 0, "width": 4, "height": 50})
-                else:
-                    chart_entries.append(c)
-
-            # Resolve slice_name → chart_id + uuid
-            charts_with_ids: list[dict] = []
-            missing: list[str] = []
-            for entry in chart_entries:
-                slice_name = entry["slice_name"]
-                chart_id = self._chart_map.get(slice_name)
-                if chart_id is None:
-                    missing.append(slice_name)
-                    continue
-                # Buscar UUID do chart (necessário para o position_json)
-                chart_uuid = ""
-                r = self.session.get(f"{self.url}/api/v1/chart/{chart_id}", timeout=15)
-                if r.ok:
-                    chart_uuid = r.json().get("result", {}).get("uuid", "")
-                charts_with_ids.append({**entry, "chart_id": chart_id, "uuid": chart_uuid})
-
-            if missing:
-                log.warning("  Charts não encontrados (ignorados): %s", missing)
-
-            position_json = _build_position_json(charts_with_ids, title=title)
-
-            # Filtros nativos
-            native_filter_config: list[dict] = []
-            if native_filters_def:
-                charts_in_scope = [item["chart_id"] for item in charts_with_ids]
-                native_filter_config = _build_native_filters(
-                    native_filters_def,
-                    self._dataset_map,
-                    charts_in_scope=charts_in_scope,
-                )
-
-            # json_metadata.positions é o que DashboardDAO.set_dash_metadata usa
-            # para associar charts ao dashboard. Sem essa chave, os charts não
-            # aparecem mesmo que position_json esteja correto.
-            json_metadata: dict[str, Any] = {
-                "native_filter_configuration": native_filter_config,
-                "timed_refresh_immune_slices": [],
-                "expanded_slices": {},
-                "refresh_frequency": 0,
-                "color_scheme": "",
-                "label_colors": {},
-                "shared_label_colors": {},
-                "color_scheme_domain": [],
-                "cross_filters_enabled": True,
-                "chart_configuration": {},
-                "global_chart_configuration": {
-                    "scope": {"rootPath": ["ROOT_ID"], "excluded": []},
-                    "chartsInScope": [],
-                },
-                "filter_bar_orientation": defn.get("filter_bar_orientation", "HORIZONTAL"),
-                "default_filters": "{}",
-                "positions": position_json,
-            }
-
-            full_payload: dict[str, Any] = {
-                "dashboard_title": title,
-                "slug": defn.get("slug"),
-                "published": defn.get("published", False),
-                "position_json": json.dumps(position_json),
-                "json_metadata": json.dumps(json_metadata),
-            }
-
-            # POST primeiro (sem layout) — Superset 4.x não associa charts no POST
-            create_payload = {
-                "dashboard_title": title,
-                "slug": defn.get("slug"),
-                "published": defn.get("published", False),
-            }
-
-            if title in existing:
-                dash_id = existing[title]
-                log.info("  Atualizando: %s (id=%s)", title, dash_id)
-            else:
-                result = self._create("/api/v1/dashboard/", create_payload)
-                dash_id = self._resolve_id(result)
-                log.info("  Criado: %s (id=%s)", title, dash_id)
-                if dash_id:
-                    self._dashboard_map[title] = dash_id
-
-            # PUT aplica layout + json_metadata — é aqui que os charts são associados
-            if dash_id:
-                self._update("/api/v1/dashboard", dash_id, full_payload)
-                log.info("  Layout e charts aplicados: %s", title)
-                self._dashboard_map[title] = dash_id
-
-                # Habilitar embedding e armazenar UUID no cache
-                try:
-                    embed_uuid = _enable_embedding(self.session, self.url, dash_id)
-                    log.info("  Embedding habilitado: uuid=%s", embed_uuid)
-                    log.info("  Configure no .env: VITE_DASHBOARD_%s_UUID=%s",
-                             defn.get("slug", title).upper().replace("-", "_"), embed_uuid)
-                    # Salva UUID no cache para referência posterior
-                    _cache = _load_ids_cache()
-                    _cache.setdefault("embed_uuids", {})[title] = embed_uuid
-                    _save_ids_cache(_cache)
-                except Exception as exc:
-                    log.warning("  Não foi possível habilitar embedding: %s", exc)
+        log.info("Dashboards sincronizados: %d", counter)
 
     def sync_all(self, steps: list[str] | None = None):
         """
@@ -587,8 +594,8 @@ class SupersetProvisioner:
         pipeline: list[tuple[str, Any]] = [
             ("databases",   self.sync_databases),
             ("datasets",    self.sync_datasets),
-            # ("charts",      self.sync_charts),
-            # ("dashboards",  self.sync_dashboards),
+            ("charts",      self.sync_charts),
+            ("dashboards",  self.sync_dashboards),
         ]
         for name, fn in pipeline:
             if steps is None or name in steps:
