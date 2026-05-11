@@ -11,6 +11,21 @@ dependencies = [
     "requests>=2.33.1",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "clickhouse-connect>=0.7",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --tb=short"
+log_cli = true
+log_cli_level = "DEBUG"
+markers = [
+    "e2e: requer docker compose (aplicado automaticamente a tudo em tests/e2e/)",
+]
+
 [project.scripts]
 superset-provision = "superset_provision.cli:main"
 
