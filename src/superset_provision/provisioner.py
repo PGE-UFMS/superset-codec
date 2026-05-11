@@ -213,7 +213,7 @@ class SupersetProvisioner:
         return d
 
     def _create(self, api_path: str, payload: dict) -> dict:
-        log.debug("POST %s\n  payload: %s", api_path, json.dumps(payload, indent=2, ensure_ascii=False))
+        log.debug("POST %s\n%s", api_path, json.dumps(payload, indent=2, ensure_ascii=False))
         resp = self.session.post(f"{self.url}{api_path}", json=payload, timeout=30)
         log.debug("  → %s %s", resp.status_code, resp.text[:500] if not resp.ok else "OK")
         if not resp.ok:
@@ -221,7 +221,7 @@ class SupersetProvisioner:
         return resp.json()
 
     def _update(self, api_path: str, resource_id: int, payload: dict) -> dict:
-        log.debug("PUT %s/%s\n  payload: %s", api_path, resource_id, json.dumps(payload, indent=2, ensure_ascii=False))
+        log.debug("PUT %s/%s\n%s", api_path, resource_id, json.dumps(payload, indent=2, ensure_ascii=False))
         resp = self.session.put(f"{self.url}{api_path}/{resource_id}", json=payload, timeout=30)
         log.debug("  → %s %s", resp.status_code, resp.text[:500] if not resp.ok else "OK")
         if not resp.ok:
@@ -275,10 +275,11 @@ class SupersetProvisioner:
             self._update("/api/v1/database", ref.id, properties)
             log.info("  Atualizado: %s", database_name)
         else:
-            result = self._create("/api/v1/database/", properties)
+            response = self._create("/api/v1/database/", properties)
+            result = response["result"]
             ref = DatabaseRef(
-                id=result["id"],
-                uuid=result["uuid"],
+                id=response["id"],
+                uuid=result.get("uuid"),
                 database_name=database_name,
             )
             self._database_map[database_name] = ref
@@ -314,10 +315,11 @@ class SupersetProvisioner:
             creation_props = {k: props[k] for k in DatasetRef.CREATION_PARAMS if k in props}
             if db_id is not None:
                 creation_props["database"] = db_id
-            result = self._create("/api/v1/dataset/", creation_props)
+            response = self._create("/api/v1/dataset/", creation_props)
+            result = response["result"]
             ref = DatasetRef(
-                id=result["id"],
-                uuid=result["uuid"],
+                id=response["id"],
+                uuid=result.get("uuid"),
                 catalog=catalog,
                 schema=schema,
                 table_name=table_name,
