@@ -10,6 +10,12 @@ def main():
         description="Provisiona recursos do Superset a partir de arquivos JSON."
     )
     parser.add_argument(
+        "resources_dir",
+        metavar="RESOURCES_DIR",
+        type=Path,
+        help="Caminho da pasta contendo os arquivos JSON de recursos.",
+    )
+    parser.add_argument(
         "--only",
         nargs="+",
         choices=["databases", "datasets", "charts", "dashboards"],
@@ -46,6 +52,9 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format="%(levelname)-8s %(message)s")
     logging.debug("URL: %s | usuário: %s", args.url, args.user)
 
+    if not args.resources_dir.is_dir():
+        parser.error(f"Pasta de recursos não encontrada: {args.resources_dir}")
+
     variables: dict[str, str] = {}
     if args.with_env:
         variables.update(os.environ)
@@ -58,7 +67,13 @@ def main():
             variables.update(file_vars)
             logging.info("Carregadas %d variáveis de %s", len(file_vars), vp)
 
-    provisioner = SupersetProvisioner(args.url, args.user, args.password, variables=variables)
+    provisioner = SupersetProvisioner(
+        args.url,
+        args.user,
+        args.password,
+        resources_dir=args.resources_dir,
+        variables=variables,
+    )
     provisioner.sync_all(steps=args.only)
     logging.info("Provisionamento concluído.")
 
