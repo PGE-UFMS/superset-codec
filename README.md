@@ -62,6 +62,7 @@ See [`docs/example/`](docs/example/) for sample resource files and [`docs/schema
 
 ```bash
 uv run superset-provision \
+  tests/resources/ \
   --url http://localhost:8088 \
   --user admin \
   --password admin
@@ -70,7 +71,7 @@ uv run superset-provision \
 You can also target specific steps:
 
 ```bash
-uv run superset-provision --url ... --user ... --password ... --steps databases datasets
+uv run superset-provision tests/resources/ --url ... --user ... --password ... --steps databases datasets
 ```
 
 Valid steps: `databases`, `datasets`, `charts`, `dashboards`.
@@ -84,6 +85,20 @@ Instead of passing flags, you can set:
 | `SUPERSET_URL` | Base URL of the Superset instance |
 | `SUPERSET_USER` | Login username |
 | `SUPERSET_PASSWORD` | Login password |
+
+## Testing
+
+Os testes E2E sobem um stack via `docker compose` (ClickHouse + Postgres + Superset), populam dados fake e exercitam o provisioner contra a API real.
+
+```bash
+uv sync --group dev
+
+uv run pytest tests/unit       # rápido, sem docker
+uv run pytest tests/e2e        # E2E (precisa docker; ~3 min na 1ª execução)
+uv run pytest -m "not e2e"     # tudo exceto E2E
+```
+
+Use `KEEP_STACK=1` para manter os containers de pé após os testes (útil pra debug).
 
 ## Building
 
