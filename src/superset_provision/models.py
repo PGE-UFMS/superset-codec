@@ -21,7 +21,7 @@ class _Ref(BaseModel):
 class DatabaseRef(_Ref):
     """Referência nativa de uma conexão de banco em /api/v1/database."""
     id: int
-    uuid: Optional[UUID]
+    uuid: Optional[UUID] = None
     database_name: str
 
     def provision_key(self):
@@ -34,7 +34,7 @@ class DatasetRef(_Ref):
     desambigua tabelas com o mesmo nome em conexões distintas.
     """
     id: int = None
-    uuid: Optional[UUID]
+    uuid: Optional[UUID] = None
     catalog: Optional[str] = None
     schema: Optional[str] = None
     table_name: str

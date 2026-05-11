@@ -3,7 +3,7 @@ import json
 import re
 import requests
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Any, Iterable, Sequence
 from .models import ChartRef, DashboardRef, DatabaseRef, DatasetRef
 
 from uuid import UUID
@@ -181,7 +181,7 @@ class SupersetProvisioner:
         return data["ids"], data["result"]
 
     @staticmethod
-    def _map_by_fields(ids: list[int], items: list[dict], *fields: str) -> dict[tuple[str,...],int]:
+    def _map_by_fields(ids: list[int], items: list[dict], *fields: str) -> dict[tuple[str,...],dict]:
         """Retorna {(field,...): item} para todos os recursos existentes na API."""
         d = {}
         for id, item in zip(ids, items, strict=True):
@@ -193,7 +193,7 @@ class SupersetProvisioner:
         return d
 
     @staticmethod
-    def _map_by_field(ids: list[int], items: list[dict], field: str) -> dict[str,int]:
+    def _map_by_field(ids: list[int], items: list[dict], field: str) -> dict[str,dict]:
         """Retorna {field: item} para todos os recursos existentes na API."""
         d = {}
         for id, item in zip(ids, items, strict=True):
@@ -234,12 +234,12 @@ class SupersetProvisioner:
         return d.values()
 
     def list_datasets(self) -> Iterable[DatasetRef]:
-        ids, items = self._list_resources("/api/v1/dataset/", "catalog", "schema", "table_name", "uuid")
-        d = {
-            k: DatasetRef(**v)
-            # TODO incluir catalog e schema
-            for k, v in self._map_by_field(ids, items, "table_name").items()
-        }
+        ids, items = self._list_resources("/api/v1/dataset/", "catalog", "schema", "table_name", "database.id", "uuid")
+        d = {}
+        # TODO incluir catalog e schema
+        for k, v in self._map_by_field(ids, items, "table_name").items():
+            database_id = v.pop("database")["id"]
+            d[k] = DatasetRef(database=database_id, **v)
         self._dataset_map = d
         return d.values()
 
@@ -271,7 +271,7 @@ class SupersetProvisioner:
             ref = DatabaseRef(
                 id=result["id"],
                 uuid=result["uuid"],
-                database_name=database_name
+                database_name=database_name,
             )
             self._database_map[database_name] = ref
             log.info("  Criado: %s (id=%s)", database_name, ref.id)
@@ -309,7 +309,7 @@ class SupersetProvisioner:
             result = self._create("/api/v1/dataset/", creation_props)
             ref = DatasetRef(
                 id=result["id"],
-                uuid=result.get("uuid"),
+                uuid=result["uuid"],
                 catalog=catalog,
                 schema=schema,
                 table_name=table_name,
@@ -576,7 +576,7 @@ class SupersetProvisioner:
         """
         pipeline: list[tuple[str, Any]] = [
             ("databases",   self.sync_databases),
-            # ("datasets",    self.sync_datasets),
+            ("datasets",    self.sync_datasets),
             # ("charts",      self.sync_charts),
             # ("dashboards",  self.sync_dashboards),
         ]
