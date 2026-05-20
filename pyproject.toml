@@ -1,13 +1,14 @@
 [project]
-name = "superset-provision"
+name = "superset-codec"
 version = "0.1.0"
-description = "An idempotent provisioning tool for Apache Superset"
+description = "Codec for declarative Apache Superset resources — export from UI, apply to any environment."
 readme = "README.md"
 authors = []
 requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
     "pydantic>=2.13.4",
+    "ruamel.yaml>=0.18",
     "requests>=2.33.1",
 ]
 
@@ -27,7 +28,7 @@ markers = [
 ]
 
 [project.scripts]
-superset-provision = "superset_provision.cli:main"
+superset-codec = "superset_codec.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.11.8,<0.12.0"]

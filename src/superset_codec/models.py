@@ -70,8 +70,8 @@ class ChartRef(_Ref):
     id: int
     uuid: Optional[UUID] = None
     slice_name: str
-    datasource_id: int
-    datasource_type: str
+    datasource_id: Optional[int] = None
+    datasource_type: Optional[str] = None
 
     def provision_key(self):
         return self.slice_name
