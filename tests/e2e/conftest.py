@@ -34,6 +34,10 @@ ENV_FILE = STACK_DIR / "test.env"
 CLICKHOUSE_HOST_PORT = int(os.environ.get("CLICKHOUSE_HOST_PORT", "18123"))
 SUPERSET_HOST_PORT = int(os.environ.get("SUPERSET_HOST_PORT", "18088"))
 
+# Set SUPERSET_URL to skip docker-compose and use an existing instance.
+# Example: SUPERSET_URL=http://localhost:8090 CLICKHOUSE_HOST_PORT=8123 uv run pytest tests/e2e
+_SUPERSET_URL_OVERRIDE = os.environ.get("SUPERSET_URL")
+
 
 def _compose(*args: str, check: bool = True):
     cmd = ["docker", "compose", "-f", str(COMPOSE_FILE), "--env-file", str(ENV_FILE), *args]
@@ -42,12 +46,17 @@ def _compose(*args: str, check: bool = True):
 
 @pytest.fixture(scope="session")
 def superset_url():
-    """Sobe o stack e devolve a URL do Superset.
+    """Returns the Superset URL.
 
-    ``docker compose up --wait`` bloqueia até todos os healthchecks ficarem
-    healthy, então não precisa de retry/wait em Python.
-    Set ``KEEP_STACK=1`` para manter os containers depois dos testes.
+    If ``SUPERSET_URL`` is set, uses that directly (no docker-compose).
+    Otherwise, brings up the docker-compose stack and tears it down after.
+    Set ``KEEP_STACK=1`` to keep containers running after the tests.
     """
+    if _SUPERSET_URL_OVERRIDE:
+        log.warning("Using existing Superset at %s (docker-compose skipped).", _SUPERSET_URL_OVERRIDE)
+        yield _SUPERSET_URL_OVERRIDE
+        return
+
     log.warning(
         "Subindo docker compose (build + healthchecks) — primeira execução "
         "pode levar 2-3 min. Use `docker compose -f %s logs -f` para acompanhar.",
@@ -66,7 +75,11 @@ def superset_url():
 
 @pytest.fixture(scope="session")
 def seeded_warehouse(superset_url):
-    """Cria a tabela ``warehouse`` e popula com dados fake determinísticos."""
+    """Creates the ``warehouse`` table with deterministic fake data.
+
+    Connects to localhost:CLICKHOUSE_HOST_PORT.
+    For an existing stack use CLICKHOUSE_HOST_PORT=8123.
+    """
     client = clickhouse_connect.get_client(
         host="localhost",
         port=CLICKHOUSE_HOST_PORT,

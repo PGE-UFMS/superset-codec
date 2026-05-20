@@ -11,3 +11,9 @@ wheels/
 
 .env
 resources/
+
+gcs/
+docs/paper/
+.DS_Store
+.claude/
+clickhouse/
