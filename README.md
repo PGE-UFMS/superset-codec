@@ -29,6 +29,8 @@ Crie ou ajuste seus dashboards na interface web, exporte o estado para arquivos 
 - **Tabs em dashboards** — suporte a dashboards com abas; cada chart pode especificar um campo `tab`.
 - **Filtros nativos** — suporte a filtros do tipo `select` e `date` com configuração declarativa.
 - **Embedding automático** — dashboards recebem embedding habilitado após `apply`.
+- **Modo seguro (`--safe`)** — no export, armazena campos verbatim do Superset (`query_context_raw`, `position_json_raw`, filtros desconhecidos como `_raw`) garantindo roundtrip para qualquer `viz_type` ou tipo de filtro; no apply, erros por recurso são logados como warning e pulados em vez de abortar o pipeline.
+- **Validação por roundtrip (padrão)** — cada chart exportado é recriado com nome temporário, testado via endpoint de dados e excluído automaticamente, garantindo que o YAML gerado pode ser re-aplicado com sucesso. Use `--no-validate` para desabilitar.
 
 ## Requisitos
 
@@ -75,6 +77,12 @@ Apenas passos específicos:
 uv run superset-codec apply ./resources --url ... --only databases datasets
 ```
 
+**Modo seguro** — erros por recurso são logados e pulados; campos `_raw` do export são usados diretamente quando disponíveis:
+
+```bash
+uv run superset-codec apply ./resources --url ... --safe
+```
+
 ### `export` — Superset → Git
 
 Exporta o estado atual do Superset para arquivos YAML declarativos:
@@ -100,7 +108,27 @@ Apenas passos específicos:
 uv run superset-codec export ./resources --url ... --only dashboards charts
 ```
 
+**Modo seguro** — armazena `query_context_raw`, `position_json_raw` e filtros desconhecidos como `_raw`, garantindo roundtrip para qualquer tipo de chart ou layout:
+
+```bash
+uv run superset-codec export ./resources --url ... --safe
+```
+
+**Desabilitar validação** — por padrão, cada chart é recriado como `_tmp_*`, testado via `/api/v1/chart/data` e excluído. Use `--no-validate` para pular:
+
+```bash
+uv run superset-codec export ./resources --url ... --no-validate
+```
+
 Passos válidos: `databases`, `datasets`, `charts`, `dashboards`.
+
+### Flags avançadas
+
+| Flag | Comando | Comportamento |
+|------|---------|---------------|
+| `--safe` | `apply` | Erros por recurso viram warning; continua pipeline. Usa campos `_raw` quando presentes. |
+| `--safe` | `export` | Armazena `query_context_raw`, `position_json_raw`, filtros desconhecidos como `_raw`. Garante roundtrip para qualquer `viz_type`. |
+| `--no-validate` | `export` | Pula a validação por roundtrip (cria chart temporário, testa dados, exclui). Mais rápido, menos seguro. |
 
 ## Estrutura de recursos
 

@@ -115,8 +115,17 @@ class ApplyMixin:
         self.list_databases()
         counter = 0
         for defn in self._iter_resources("databases"):
-            self.sync_database(defn["database_name"], defn)
-            counter += 1
+            name = defn.get("database_name", "?")
+            try:
+                self.sync_database(name, defn)
+                counter += 1
+                self._record("databases", name, ok=True)
+            except Exception as exc:
+                self._record("databases", name, ok=False)
+                if self.safe_mode:
+                    log.warning("  Skipped database '%s': %s", name, exc)
+                else:
+                    raise
         log.info("Databases synced: %d", counter)
 
     # ----- datasets -----
@@ -165,8 +174,17 @@ class ApplyMixin:
         self.list_datasets()
         counter = 0
         for defn in self._iter_resources("datasets"):
-            self.sync_dataset(defn["table_name"], defn.get("schema"), defn.get("catalog"), defn)
-            counter += 1
+            name = defn.get("table_name", "?")
+            try:
+                self.sync_dataset(name, defn.get("schema"), defn.get("catalog"), defn)
+                counter += 1
+                self._record("datasets", name, ok=True)
+            except Exception as exc:
+                self._record("datasets", name, ok=False)
+                if self.safe_mode:
+                    log.warning("  Skipped dataset '%s': %s", name, exc)
+                else:
+                    raise
         log.info("Datasets synced: %d", counter)
 
     # ----- charts -----
@@ -194,7 +212,21 @@ class ApplyMixin:
             "adhoc_filters": [],
             **params,
         })
-        props["query_context"] = _build_query_context(viz_type, ds_id, params)
+
+        # Use the verbatim query_context stored by safe-mode export when available,
+        # updating only the datasource ID for the current environment.
+        qc_raw = props.pop("query_context_raw", None)
+        if qc_raw:
+            try:
+                qc_obj = json.loads(qc_raw) if isinstance(qc_raw, str) else qc_raw
+                qc_obj["datasource"]["id"] = ds_id
+                props["query_context"] = json.dumps(qc_obj)
+                log.debug("  Using query_context_raw for '%s'.", slice_name)
+            except Exception as exc:
+                log.warning("  Could not apply query_context_raw for '%s': %s — rebuilding.", slice_name, exc)
+                props["query_context"] = _build_query_context(viz_type, ds_id, params)
+        else:
+            props["query_context"] = _build_query_context(viz_type, ds_id, params)
 
         if slice_name in self._chart_map:
             self._update("/api/v1/chart", self._chart_map[slice_name].id, props)
@@ -225,8 +257,17 @@ class ApplyMixin:
         self.list_charts()
         counter = 0
         for defn in self._iter_resources("charts"):
-            self.sync_chart(defn["slice_name"], defn)
-            counter += 1
+            name = defn.get("slice_name", "?")
+            try:
+                self.sync_chart(name, defn)
+                counter += 1
+                self._record("charts", name, ok=True)
+            except Exception as exc:
+                self._record("charts", name, ok=False)
+                if self.safe_mode:
+                    log.warning("  Skipped chart '%s': %s", name, exc)
+                else:
+                    raise
         log.info("Charts synced: %d", counter)
 
     # ----- dashboards -----
@@ -236,6 +277,7 @@ class ApplyMixin:
         title = defn["dashboard_title"]
         raw_charts = defn.pop("charts", [])
         native_filters_def = defn.pop("native_filters", [])
+        position_json_raw = defn.pop("position_json_raw", None)
 
         chart_entries: list[dict] = [
             ({"slice_name": c, "row": i, "col": 0, "width": 4, "height": 50}
@@ -258,7 +300,25 @@ class ApplyMixin:
         if missing:
             log.warning("  Charts not found (skipped): %s", missing)
 
-        position_json = build_position_json(charts_with_ids, title=title)
+        # Use verbatim position_json from safe-mode export when available,
+        # remapping chartId values to the current environment's IDs.
+        if position_json_raw:
+            try:
+                raw_pos = json.loads(position_json_raw) if isinstance(position_json_raw, str) else position_json_raw
+                for node in raw_pos.values():
+                    if isinstance(node, dict) and node.get("type") == "CHART":
+                        chart_name = node.get("meta", {}).get("sliceName", "")
+                        ref = self._chart_map.get(chart_name)
+                        if ref:
+                            node["meta"]["chartId"] = ref.id
+                position_json = raw_pos
+                log.debug("  Using position_json_raw for '%s'.", title)
+            except Exception as exc:
+                log.warning("  Could not apply position_json_raw for '%s': %s — rebuilding.", title, exc)
+                position_json = build_position_json(charts_with_ids, title=title)
+        else:
+            position_json = build_position_json(charts_with_ids, title=title)
+
         native_filter_config = (
             build_native_filters(
                 native_filters_def,
@@ -335,6 +395,14 @@ class ApplyMixin:
         counter = 0
         for defn in self._iter_resources("dashboards"):
             slug = defn.get("slug") or defn["dashboard_title"]
-            self.sync_dashboard(slug, defn)
-            counter += 1
+            try:
+                self.sync_dashboard(slug, defn)
+                counter += 1
+                self._record("dashboards", slug, ok=True)
+            except Exception as exc:
+                self._record("dashboards", slug, ok=False)
+                if self.safe_mode:
+                    log.warning("  Skipped dashboard '%s': %s", slug, exc)
+                else:
+                    raise
         log.info("Dashboards synced: %d", counter)
