@@ -26,6 +26,7 @@ class SupersetClient:
         password: str,
         resources_dir: Path | str = "./resources",
         variables: dict[str, str] = {},
+        safe_mode: bool = False,
     ):
         self.url = url.rstrip("/")
         self._user = user
@@ -33,11 +34,18 @@ class SupersetClient:
         self._resources_dir = Path(resources_dir)
         self._session: requests.Session | None = None
         self.variables = variables
+        self.safe_mode = safe_mode
+        self.validate = True
 
         self._database_map:  dict[str, DatabaseRef] = {}
         self._dataset_map:   dict[str, DatasetRef]  = {}
         self._chart_map:     dict[str, ChartRef]    = {}
         self._dashboard_map: dict[str, DashboardRef] = {}
+
+        self._summary: dict[str, dict[str, list[str]]] = {
+            step: {"ok": [], "fail": []}
+            for step in ("databases", "datasets", "charts", "dashboards")
+        }
 
     # ------------------------------------------------------------------
     # Session / auth
@@ -109,6 +117,11 @@ class SupersetClient:
             raise RuntimeError(f"PUT {api_path}/{resource_id} → {resp.status_code}: {resp.text}")
         return resp.json()
 
+    def _delete(self, api_path: str, resource_id: int) -> None:
+        resp = self.session.delete(f"{self.url}{api_path}/{resource_id}", timeout=15)
+        if not resp.ok:
+            raise RuntimeError(f"DELETE {api_path}/{resource_id} → {resp.status_code}: {resp.text}")
+
     def _get_resource(self, api_path: str, resource_id: int, suffix: str = "") -> dict:
         resp = self.session.get(f"{self.url}{api_path}/{resource_id}{suffix}", timeout=15)
         resp.raise_for_status()
@@ -141,6 +154,44 @@ class SupersetClient:
     @staticmethod
     def _resolve_id(result: dict) -> int | None:
         return result.get("id") or (result.get("result") or {}).get("id")
+
+    def _record(self, step: str, name: str, *, ok: bool) -> None:
+        bucket = "ok" if ok else "fail"
+        self._summary[step][bucket].append(name)
+
+    def print_summary(self) -> None:
+        """Print a summary table and, if there are failures, a friendly list."""
+        STEPS = ("databases", "datasets", "charts", "dashboards")
+        all_names = [n for s in STEPS for n in self._summary[s]["ok"] + self._summary[s]["fail"]]
+        name_w = max((len(n) for n in all_names), default=0, )
+        name_w = max(name_w, len("Resource"))
+        step_w = len("dashboards")
+        sep = "-" * (name_w + step_w + len("  Status  ") + 2)
+
+        lines = [sep, f"{'Resource':<{name_w}}  {'Step':<{step_w}}  Status", sep]
+        any_row = False
+        for step in STEPS:
+            for name in self._summary[step]["ok"]:
+                lines.append(f"{name:<{name_w}}  {step:<{step_w}}  OK")
+                any_row = True
+            for name in self._summary[step]["fail"]:
+                lines.append(f"{name:<{name_w}}  {step:<{step_w}}  FAIL")
+                any_row = True
+        if not any_row:
+            lines.append("  (no resources processed)")
+
+        ok_total   = sum(len(self._summary[s]["ok"])   for s in STEPS)
+        fail_total = sum(len(self._summary[s]["fail"]) for s in STEPS)
+        lines += [sep, f"  {ok_total} OK  |  {fail_total} FAIL", sep]
+        log.info("\n" + "\n".join(lines))
+
+        if fail_total:
+            failed_lines = ["", "The following resources could not be processed:"]
+            for step in STEPS:
+                for name in self._summary[step]["fail"]:
+                    failed_lines.append(f"  - [{step}] {name}")
+            failed_lines.append("")
+            log.warning("\n".join(failed_lines))
 
     # ------------------------------------------------------------------
     # Resource list methods (populate in-memory maps)
