@@ -27,9 +27,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 E2E_DIR = Path(__file__).parent
-STACK_DIR = E2E_DIR / "stack"
-COMPOSE_FILE = STACK_DIR / "docker-compose.yml"
-ENV_FILE = STACK_DIR / "test.env"
+COMPOSE_FILE = E2E_DIR / "docker-compose.yml"
 
 CLICKHOUSE_HOST_PORT = int(os.environ.get("CLICKHOUSE_HOST_PORT", "18123"))
 SUPERSET_HOST_PORT = int(os.environ.get("SUPERSET_HOST_PORT", "18088"))
@@ -40,7 +38,7 @@ _SUPERSET_URL_OVERRIDE = os.environ.get("SUPERSET_URL")
 
 
 def _compose(*args: str, check: bool = True):
-    cmd = ["docker", "compose", "-f", str(COMPOSE_FILE), "--env-file", str(ENV_FILE), *args]
+    cmd = ["docker", "compose", "-f", str(COMPOSE_FILE), *args]
     return subprocess.run(cmd, check=check)
 
 
