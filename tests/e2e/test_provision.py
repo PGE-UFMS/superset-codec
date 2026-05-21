@@ -44,10 +44,6 @@ def _codec(superset_url, resources_dir=RESOURCES_DIR) -> SupersetCodec:
     )
 
 
-# ---------------------------------------------------------------------------
-# Databases and datasets
-# ---------------------------------------------------------------------------
-
 def test_apply_databases_and_datasets(superset_url, seeded_warehouse):
     codec = _codec(superset_url)
     codec.apply(steps=["databases", "datasets"])
@@ -55,11 +51,6 @@ def test_apply_databases_and_datasets(superset_url, seeded_warehouse):
     s = codec.session
     assert _count(s, superset_url, "/api/v1/database/", "database_name", "Test Warehouse") == 1
     assert _count(s, superset_url, "/api/v1/dataset/",  "table_name",    "warehouse")      == 1
-
-
-# ---------------------------------------------------------------------------
-# Charts — one test per mapped viz_type
-# ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("viz_type,slice_name", VIZ_TYPE_CHARTS.items())
 def test_apply_chart_viz_type(superset_url, seeded_warehouse, viz_type, slice_name):
@@ -71,10 +62,6 @@ def test_apply_chart_viz_type(superset_url, seeded_warehouse, viz_type, slice_na
     assert count == 1, f"viz_type '{viz_type}' chart '{slice_name}' not found after apply"
 
 
-# ---------------------------------------------------------------------------
-# Dashboard with tabbed layout
-# ---------------------------------------------------------------------------
-
 def test_apply_dashboard_with_tabs(superset_url, seeded_warehouse):
     """Dashboard with tabbed layout is created and charts are linked."""
     codec = _codec(superset_url)
@@ -82,11 +69,6 @@ def test_apply_dashboard_with_tabs(superset_url, seeded_warehouse):
 
     s = codec.session
     assert _count(s, superset_url, "/api/v1/dashboard/", "slug", "test-dashboard") == 1
-
-
-# ---------------------------------------------------------------------------
-# Idempotency
-# ---------------------------------------------------------------------------
 
 def test_apply_is_idempotent(superset_url, seeded_warehouse):
     """Running apply twice must not duplicate any resource."""
@@ -99,11 +81,6 @@ def test_apply_is_idempotent(superset_url, seeded_warehouse):
     assert _count(s, superset_url, "/api/v1/dataset/",   "table_name",    "warehouse")          == 1
     assert _count(s, superset_url, "/api/v1/chart/",     "slice_name",    "Test KPI Revenue")   == 1
     assert _count(s, superset_url, "/api/v1/dashboard/", "slug",          "test-dashboard")     == 1
-
-
-# ---------------------------------------------------------------------------
-# Export → apply roundtrip
-# ---------------------------------------------------------------------------
 
 def test_export_apply_roundtrip(superset_url, seeded_warehouse, tmp_path):
     """export() captures state; re-applying the exported files produces no duplicates."""
