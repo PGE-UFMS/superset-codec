@@ -1,0 +1,5 @@
+database: Logistics Alpha
+schema: default
+table_name: shipments
+main_dttm_col: shipment_date
+filter_select_enabled: true

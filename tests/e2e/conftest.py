@@ -72,8 +72,8 @@ def superset_url():
 
 
 @pytest.fixture(scope="session")
-def seeded_warehouse(superset_url):
-    """Creates the ``warehouse`` table with deterministic fake data.
+def seeded_shipments(superset_url):
+    """Creates the ``shipments`` table with deterministic fake data.
 
     Connects to localhost:CLICKHOUSE_HOST_PORT.
     For an existing stack use CLICKHOUSE_HOST_PORT=8123.
@@ -84,40 +84,45 @@ def seeded_warehouse(superset_url):
         username="default",
         password="",
     )
-    client.command("DROP TABLE IF EXISTS warehouse")
+    client.command("DROP TABLE IF EXISTS shipments")
     client.command("""
-        CREATE TABLE warehouse (
-            event_date Date,
-            event_ts   DateTime,
-            region     LowCardinality(String),
-            category   LowCardinality(String),
-            product_id UInt32,
-            units      UInt32,
-            revenue    Float64
+        CREATE TABLE shipments (
+            shipment_date Date,
+            shipment_ts   DateTime,
+            uf            LowCardinality(String),
+            category      LowCardinality(String),
+            status        LowCardinality(String),
+            weight_kg     Float64,
+            revenue       Float64
         ) ENGINE = MergeTree()
-        ORDER BY (event_date, region, category)
+        ORDER BY (shipment_date, uf, category)
     """)
 
     rng = random.Random(42)
-    regions = ["north", "south", "east", "west"]
-    categories = ["alpha", "beta", "gamma", "delta"]
+    ufs = [
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+        "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+        "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    ]
+    categories = ["electronics", "clothing", "food", "books", "sports"]
+    statuses = ["delivered"] * 7 + ["in_transit"] * 2 + ["returned"] * 1
     base = date(2025, 1, 1)
 
     rows = []
-    for _ in range(500):
+    for _ in range(3000):
         d = base + timedelta(days=rng.randint(0, 180))
         ts = datetime.combine(d, datetime.min.time()) + timedelta(seconds=rng.randint(0, 86399))
         rows.append([
             d, ts,
-            rng.choice(regions),
+            rng.choice(ufs),
             rng.choice(categories),
-            rng.randint(1, 50),
-            rng.randint(1, 20),
-            round(rng.uniform(10.0, 500.0), 2),
+            rng.choice(statuses),
+            round(rng.uniform(0.1, 30.0), 2),
+            round(rng.uniform(15.0, 500.0), 2),
         ])
     client.insert(
-        "warehouse",
+        "shipments",
         rows,
-        column_names=["event_date", "event_ts", "region", "category", "product_id", "units", "revenue"],
+        column_names=["shipment_date", "shipment_ts", "uf", "category", "status", "weight_kg", "revenue"],
     )
     return client

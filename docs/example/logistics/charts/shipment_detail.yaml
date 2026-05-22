@@ -1,0 +1,18 @@
+slice_name: Shipment Detail
+viz_type: table
+datasource_table: shipments
+params:
+  query_mode: raw
+  all_columns:
+    - shipment_date
+    - uf
+    - category
+    - status
+    - weight_kg
+    - revenue
+  order_by_cols:
+    - '["shipment_date", false]'
+  granularity_sqla: shipment_date
+  time_range: No filter
+  row_limit: 100
+  table_timestamp_format: smart_date

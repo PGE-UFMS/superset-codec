@@ -1,0 +1,17 @@
+slice_name: Delivery Status
+viz_type: pie
+datasource_table: shipments
+params:
+  metric:
+    expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: Shipments
+    optionName: metric_delivery_status
+  groupby:
+    - status
+  granularity_sqla: shipment_date
+  time_range: No filter
+  row_limit: 10000
+  donut: false
+  show_legend: true
+  show_labels: true
