@@ -7,6 +7,14 @@ import pytest
 from superset_codec._filters import build_native_filters, simplify_native_filter
 
 
+def _resolver(mapping):
+    """Build a resolver that accepts string or dict refs (looked up by table_name)."""
+    def _r(ref):
+        key = ref["table_name"] if isinstance(ref, dict) else ref
+        return mapping.get(key)
+    return _r
+
+
 _STABLE_UUID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
@@ -32,7 +40,7 @@ def fake_now(monkeypatch):
 
 def test_build_raw_passthrough_updates_only_charts_in_scope():
     raw = {"id": "kept", "name": "f", "chartsInScope": [99]}
-    out = build_native_filters([{"_raw": raw}], dataset_name_to_id={}, charts_in_scope=[1, 2])
+    out = build_native_filters([{"_raw": raw}], _resolver({}), charts_in_scope=[1, 2])
     assert len(out) == 1
     assert out[0]["id"] == "kept"
     assert out[0]["name"] == "f"
@@ -43,7 +51,7 @@ def test_build_missing_dataset_skipped_with_warning(caplog):
     with caplog.at_level(logging.WARNING, logger="superset_codec._filters"):
         out = build_native_filters(
             [{"name": "f", "column": "c", "dataset": "missing"}],
-            dataset_name_to_id={},
+            _resolver({}),
         )
     assert out == []
     assert any("missing" in r.message for r in caplog.records)
@@ -53,7 +61,7 @@ def test_build_date_filter_shape(stable_uuid):
     out = build_native_filters(
         [{"name": "Periodo", "column": "ts", "dataset": "ds",
           "filter_type": "date", "default_value": "Last week"}],
-        dataset_name_to_id={"ds": 7},
+        _resolver({"ds": 7}),
     )
     f = out[0]
     assert f["filterType"] == "filter_time"
@@ -65,7 +73,7 @@ def test_build_date_filter_shape(stable_uuid):
 def test_build_date_filter_default_no_filter(stable_uuid):
     out = build_native_filters(
         [{"name": "Periodo", "column": "ts", "dataset": "ds", "filter_type": "date"}],
-        dataset_name_to_id={"ds": 7},
+        _resolver({"ds": 7}),
     )
     assert out[0]["defaultDataMask"]["extraFormData"]["time_range"] == "No filter"
 
@@ -73,7 +81,7 @@ def test_build_date_filter_default_no_filter(stable_uuid):
 def test_build_select_default_multi_select_true(stable_uuid):
     out = build_native_filters(
         [{"name": "Area", "column": "area", "dataset": "ds"}],
-        dataset_name_to_id={"ds": 1},
+        _resolver({"ds": 1}),
     )
     assert out[0]["controlValues"]["multiSelect"] is True
 
@@ -95,7 +103,7 @@ def test_build_select_default_value_variants(
     decl = {"name": "Ano", "column": "ano", "dataset": "ds"}
     if default_value is not None:
         decl["default_value"] = default_value
-    out = build_native_filters([decl], dataset_name_to_id={"ds": 1})
+    out = build_native_filters([decl], _resolver({"ds": 1}))
     assert out[0]["defaultDataMask"]["filterState"]["value"] == expected_value
     assert out[0]["defaultDataMask"]["extraFormData"] == expected_extra
 
@@ -104,7 +112,7 @@ def test_build_select_current_year_uses_datetime_now(stable_uuid, fake_now):
     out = build_native_filters(
         [{"name": "Ano", "column": "ano", "dataset": "ds",
           "default_value": "current_year"}],
-        dataset_name_to_id={"ds": 1},
+        _resolver({"ds": 1}),
     )
     assert out[0]["defaultDataMask"]["filterState"]["value"] == [2099]
 
@@ -112,7 +120,7 @@ def test_build_select_current_year_uses_datetime_now(stable_uuid, fake_now):
 def test_build_filter_id_format(stable_uuid):
     out = build_native_filters(
         [{"name": "Area", "column": "area", "dataset": "ds"}],
-        dataset_name_to_id={"ds": 1},
+        _resolver({"ds": 1}),
     )
     # uuid4().hex[:8].upper() of stable uuid → "11111111"
     assert out[0]["id"] == "NATIVE_FILTER-11111111"
@@ -121,9 +129,23 @@ def test_build_filter_id_format(stable_uuid):
 def test_build_charts_in_scope_defaults_to_empty_list(stable_uuid):
     out = build_native_filters(
         [{"name": "f", "column": "c", "dataset": "ds"}],
-        dataset_name_to_id={"ds": 1},
+        _resolver({"ds": 1}),
     )
     assert out[0]["chartsInScope"] == []
+
+
+def test_build_accepts_dataset_as_dict_ref(stable_uuid):
+    calls = []
+    def resolver(ref):
+        calls.append(ref)
+        return 42
+    out = build_native_filters(
+        [{"name": "f", "column": "c",
+          "dataset": {"table_name": "orders", "schema": "public"}}],
+        resolver,
+    )
+    assert out[0]["targets"][0]["datasetId"] == 42
+    assert calls == [{"table_name": "orders", "schema": "public"}]
 
 
 # --------------------------- simplify_native_filter ---------------------------
@@ -233,7 +255,7 @@ def test_simplify_handles_missing_targets_gracefully():
     ],
 )
 def test_filters_roundtrip(decl, stable_uuid):
-    built = build_native_filters([decl], dataset_name_to_id={"ds": 7})
+    built = build_native_filters([decl], _resolver({"ds": 7}))
     simplified = simplify_native_filter(built[0], {7: "ds"})
     expected = dict(decl)
     # build does not preserve filter_type ordering; simplify orders fields canonically.

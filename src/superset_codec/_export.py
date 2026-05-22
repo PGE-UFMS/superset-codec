@@ -17,9 +17,33 @@ class ExportMixin:
     def _build_inverse_maps(self) -> None:
         """Populate ``_id_to_*`` dicts used to resolve IDs back to names during export."""
         self._id_to_database:  dict[int, str] = {r.id: r.database_name for r in self.list_databases()}
-        self._id_to_dataset:   dict[int, str] = {r.id: r.table_name    for r in self.list_datasets()}
+        self._id_to_dataset:   dict[int, str | dict] = _build_inverse_dataset_map(self.list_datasets())
         self._id_to_chart:     dict[int, str] = {r.id: r.slice_name    for r in self.list_charts()}
         self._id_to_dashboard: dict[int, str] = {r.id: r.slug          for r in self.list_dashboards()}
+
+
+def _build_inverse_dataset_map(refs) -> dict[int, str | dict]:
+    """Map dataset id → reference, disambiguating by ``catalog``/``schema`` when needed.
+
+    Datasets with a unique ``table_name`` map to the bare string; collisions map to
+    ``{"table_name", "schema"?, "catalog"?}`` so the YAML reference round-trips.
+    """
+    refs = list(refs)
+    counts: dict[str, int] = {}
+    for r in refs:
+        counts[r.table_name] = counts.get(r.table_name, 0) + 1
+    out: dict[int, str | dict] = {}
+    for r in refs:
+        if counts[r.table_name] > 1:
+            entry: dict = {"table_name": r.table_name}
+            if r.schema is not None:
+                entry["schema"] = r.schema
+            if r.catalog is not None:
+                entry["catalog"] = r.catalog
+            out[r.id] = entry
+        else:
+            out[r.id] = r.table_name
+    return out
 
     def _validate_chart(self, slice_name: str, raw: dict) -> bool:
         """Create a temp copy of the chart, verify its query executes, then delete it.
@@ -111,7 +135,8 @@ class ExportMixin:
             "main_dttm_col", "offset", "default_endpoint", "cache_timeout",
             "is_sqllab_view", "template_params", "filter_select_enabled",
         }
-        for table_name, ref in self._dataset_map.items():
+        for ref in self._dataset_map.values():
+            table_name = ref.table_name
             try:
                 raw = self._get_resource("/api/v1/dataset", ref.id)
                 data = {k: v for k, v in raw.items() if k in KEEP and v is not None}
