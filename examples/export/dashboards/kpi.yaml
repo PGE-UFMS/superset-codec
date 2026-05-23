@@ -1,0 +1,606 @@
+# Title displayed in Superset
+dashboard_title: KPI
+# Unique identifier used in the URL and embedding
+slug: kpi
+# Visible to all users (false = admins only)
+published: true
+# Chart list with grid positions (row/col/width/height)
+charts:
+- slice_name: Big Number with Trendline  [Default]
+  row: 0
+  col: 0
+  width: 6
+  height: 50
+- slice_name: Big Number [Default]
+  row: 0
+  col: 1
+  width: 6
+  height: 50
+- slice_name: Gauge Chart [Default]
+  row: 1
+  col: 0
+  width: 6
+  height: 50
+- slice_name: Bullet [Default]
+  row: 1
+  col: 1
+  width: 6
+  height: 50
+- slice_name: Funnel Chart [Default]
+  row: 2
+  col: 0
+  width: 6
+  height: 50
+# Native filters applied to the dashboard
+native_filters:
+- name: Value [Default]
+  column: destination_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: '[Value] Values are dependent on other filters '
+  column: airline
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Pre-filter available values]
+  column: origin_municipality
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Sort filter values]
+  column: origin_name
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Filter has default value]
+  column: origin_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - United Kingdom
+- name: Value [Filter value is required]
+  column: origin_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - United Kingdom
+- name: ' Value [Select first filter value by default]'
+  column: ticket_single_or_return
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Can't select multiple values]
+  column: travel_class
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: false
+- name: Value [Dynamically search all filter values]
+  column: airline
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Inverse selection]
+  column: destination_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Default]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-2fhTbsSBr10JvIG_lNPfq
+    name: Numerical range [Default]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Values are dependent on other filters]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds:
+    - NATIVE_FILTER-Ni0MQTaoEJf_MAdySRjhZ
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-GUDe4HwKOOyIJ_OoqpTOV
+    name: Numerical range [Values are dependent on other filters]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Pre-filter available values]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    adhoc_filters:
+    - clause: WHERE
+      comparator: United Kingdom
+      datasourceWarning: false
+      expressionType: SIMPLE
+      filterOptionName: filter_cerzzu79vyd_xnbvfoj0u6m
+      isExtra: false
+      isNew: false
+      operator: ==
+      operatorId: EQUALS
+      sqlExpression:
+      subject: origin_country
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-0paMUpEB7jUXmbh27t49y
+    name: Numerical range [Pre-filter available values]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    time_range: No filter
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Single Value]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      enableSingleValue: 1
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-FmYj9lpYCJlYUxIeB0wPp
+    name: Numerical range [Single Value]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Range Inputs]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-im9SD3MCB8QXxMXv1qn-Y
+    name: Numerical range [Range Inputs]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Slider]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-UVqHtJz2cXNI-sULD9Mg8
+    name: Numerical range [Slider]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Filter has default value]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id001
+  - 1
+  - 7969.2
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: cost
+          op: '>='
+          val: 1
+        - col: cost
+          op: <=
+          val: 7969.2
+      filterState:
+        label: 1 ≤ x ≤ 7.97k
+        validateMessage: ''
+        value: *id001
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-WPq9oDNSQBdO6_grmUEQN
+    name: Numerical range [Filter has default value]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Numerical range [Filter value is required]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id002
+  - 1
+  - 7969.2
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: true
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: cost
+          op: '>='
+          val: 1
+        - col: cost
+          op: <=
+          val: 7969.2
+      filterState:
+        label: 1 ≤ x ≤ 7.97k
+        validateMessage: ''
+        value: *id002
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-tuDMXPBFvEdEPQwaS8yhh
+    name: Numerical range [Filter value is required]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - column:
+        name: cost
+      datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Time column [Default]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_timecolumn
+    id: NATIVE_FILTER-r_gaYCWw6Axg3LPyykHa3
+    name: Time column [Default]
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    sortMetric:
+    targets:
+    - datasetId: 44
+    type: NATIVE_FILTER
+    chartsInScope: []
+    tabsInScope: []
+- name: Time column [Sort filter values]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    id: NATIVE_FILTER-Sz9QQMU7a6uznIWGtpAUh
+    type: NATIVE_FILTER
+    name: Time column [Sort filter values]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+      sortAscending: true
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric:
+- name: Time column [Filter has default value]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id003
+  - travel_date
+  _raw:
+    id: NATIVE_FILTER-g1HzNIjBZrbsljUaKUY7e
+    type: NATIVE_FILTER
+    name: Time column [Filter has default value]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData:
+        granularity_sqla: travel_date
+      filterState:
+        value: *id003
+    cascadeParentIds: []
+    sortMetric:
+- name: Time column [Filter value is required]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id004
+  - travel_date
+  _raw:
+    id: NATIVE_FILTER-IbC_LOPZSUT6eQGGC_qlX
+    type: NATIVE_FILTER
+    name: Time column [Filter value is required]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: true
+    defaultDataMask:
+      extraFormData:
+        granularity_sqla: travel_date
+      filterState:
+        value: *id004
+    cascadeParentIds: []
+    sortMetric:
+- name: Time grain [Default]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    id: NATIVE_FILTER-fVRaIjDDsS1aa2SY0sEGh
+    type: NATIVE_FILTER
+    name: Time grain [Default]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric:
+- name: Time grain [Sort filter values]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  _raw:
+    id: NATIVE_FILTER-Y6Lk3v3BlqaSPq-KtFVgS
+    type: NATIVE_FILTER
+    name: Time grain [Sort filter values]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      sortAscending: true
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric:
+- name: Time grain [Filter has default value]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id005
+  - P1Y
+  _raw:
+    id: NATIVE_FILTER-E8Wn2pzPhFcakVBMSoKDo
+    type: NATIVE_FILTER
+    name: Time grain [Filter has default value]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData:
+        time_grain_sqla: P1Y
+      filterState:
+        value: *id005
+    cascadeParentIds: []
+    sortMetric:
+- name: Time grain [Filter value is required]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value: &id006
+  - P1Y
+  _raw:
+    id: NATIVE_FILTER-s8IhCQ3OolH64wjd2WPRn
+    type: NATIVE_FILTER
+    name: Time grain [Filter value is required]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetId: 44
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: true
+    defaultDataMask:
+      extraFormData:
+        time_grain_sqla: P1Y
+      filterState:
+        label: Year
+        value: *id006
+    cascadeParentIds: []
+    sortMetric:
+- name: Time range [Default]
+  column: ''
+  dataset: ''
+  filter_type: date
+- name: Time range [Filter has default value]
+  column: ''
+  dataset: ''
+  filter_type: date
+  default_value: '2011-01-01T03:30:09 : 2011-12-31T00:00:00'
+- name: Time range [Filter value is required]
+  column: ''
+  dataset: ''
+  filter_type: date
+  default_value: '2011-01-01T00:00:00 : 2011-12-31T00:00:00'
+position_json_raw: '{"CHART-28b4bebe":{"children":[],"id":"CHART-28b4bebe","meta":{"chartId":266,"height":50,"sliceName":"Big
+  Number with Trendline","uuid":"a8c0f319-a82a-4060-a248-b08e1be68a08","width":6},"parents":["ROOT_ID","GRID_ID","ROW-9b6741a4"],"type":"CHART"},"CHART-3b273518":{"children":[],"id":"CHART-3b273518","meta":{"chartId":270,"height":50,"sliceName":"[bullet]
+  Bullet","uuid":"5b407551-88c8-428d-8544-9d62d79c717b","width":6},"parents":["ROOT_ID","GRID_ID","ROW-cabe5606"],"type":"CHART"},"CHART-4792573a":{"children":[],"id":"CHART-4792573a","meta":{"chartId":269,"height":50,"sliceName":"Gauge
+  Chart","uuid":"153b5d12-4eb5-4389-8150-09991c9177c0","width":6},"parents":["ROOT_ID","GRID_ID","ROW-cabe5606"],"type":"CHART"},"CHART-5R8kce1EONLes06ciXSgL":{"children":[],"id":"CHART-5R8kce1EONLes06ciXSgL","meta":{"chartId":325,"height":50,"sliceName":"Funnel
+  Chart","uuid":"7d200009-3895-41ca-88c8-f57a61d7077c","width":6},"parents":["ROOT_ID","GRID_ID","ROW-Tn0G7Hx3jNK_7C6RXgQTQ"],"type":"CHART"},"CHART-78d7d9e0":{"children":[],"id":"CHART-78d7d9e0","meta":{"chartId":267,"height":50,"sliceName":"Big
+  Number","uuid":"d2af30e3-e29e-4a2c-9201-f293c7595b63","width":6},"parents":["ROOT_ID","GRID_ID","ROW-9b6741a4"],"type":"CHART"},"DASHBOARD_VERSION_KEY":"v2","GRID_ID":{"children":["ROW-9b6741a4","ROW-cabe5606","ROW-Tn0G7Hx3jNK_7C6RXgQTQ"],"id":"GRID_ID","parents":["ROOT_ID"],"type":"GRID"},"HEADER_ID":{"id":"HEADER_ID","meta":{"text":"All
+  Charts - KPI"},"type":"HEADER"},"ROOT_ID":{"children":["GRID_ID"],"id":"ROOT_ID","type":"ROOT"},"ROW-9b6741a4":{"children":["CHART-28b4bebe","CHART-78d7d9e0"],"id":"ROW-9b6741a4","meta":{"background":"BACKGROUND_TRANSPARENT"},"parents":["ROOT_ID","GRID_ID"],"type":"ROW"},"ROW-Tn0G7Hx3jNK_7C6RXgQTQ":{"children":["CHART-5R8kce1EONLes06ciXSgL"],"id":"ROW-Tn0G7Hx3jNK_7C6RXgQTQ","meta":{"background":"BACKGROUND_TRANSPARENT"},"parents":["ROOT_ID","GRID_ID"],"type":"ROW"},"ROW-cabe5606":{"children":["CHART-4792573a","CHART-3b273518"],"id":"ROW-cabe5606","meta":{"background":"BACKGROUND_TRANSPARENT"},"parents":["ROOT_ID","GRID_ID"],"type":"ROW"}}'
