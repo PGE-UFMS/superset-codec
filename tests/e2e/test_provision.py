@@ -9,7 +9,7 @@ import pytest
 
 from superset_codec import SupersetCodec
 
-EXAMPLES_DIR = Path(__file__).parent.parent.parent / "docs" / "example"
+EXAMPLES_DIR = Path(__file__).parent.parent.parent / "examples"
 LOGISTICS_DIR = EXAMPLES_DIR / "logistics"
 
 # URI as seen from inside Superset's container (Superset → ClickHouse).

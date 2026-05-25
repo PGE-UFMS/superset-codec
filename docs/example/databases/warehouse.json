@@ -1,5 +1,0 @@
-{
-    "$schema": "../../schemas/database.json",
-    "database_name": "warehouse",
-    "sqlalchemy_uri": "someuri"
-}
