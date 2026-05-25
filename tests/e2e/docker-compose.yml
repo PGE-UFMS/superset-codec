@@ -1,7 +1,6 @@
 services:
   clickhouse:
     image: clickhouse/clickhouse-server:26.3
-    networks: [testnet]
     ports:
       - "${CLICKHOUSE_HOST_PORT:-18123}:8123"
     environment:
@@ -16,7 +15,6 @@ services:
 
   postgres:
     image: postgres:17
-    networks: [testnet]
     environment:
       POSTGRES_DB: superset
       POSTGRES_USER: superset
@@ -27,34 +25,6 @@ services:
       timeout: 3s
       retries: 20
 
-  superset-init:
-    image: superset-test:6.0.0-dev
-    # build:
-    #   context: .
-    #   dockerfile_inline: |
-    #     FROM apache/superset:6.0.0-dev
-    #     USER root
-    #     RUN pip install --no-cache-dir clickhouse-connect
-    #     USER superset
-    networks: [testnet]
-    depends_on:
-      postgres: {condition: service_healthy}
-    environment:
-      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
-      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
-    volumes:
-      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
-    command:
-      - bash
-      - -c
-      - |
-        set -e
-        superset db upgrade
-        superset fab create-admin \
-          --username admin --firstname admin --lastname admin \
-          --email admin@example.com --password admin || true
-        superset init
-
   superset:
     image: superset-test:6.0.0-dev
     build:
@@ -62,24 +32,36 @@ services:
       dockerfile_inline: |
         FROM apache/superset:6.0.0-dev
         USER root
-        RUN pip install --no-cache-dir clickhouse-connect
+        RUN uv pip install --no-cache-dir clickhouse-connect==0.15.1
         USER superset
-    networks: [testnet]
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        SENTINEL="/app/superset_home/.superset-initialized"
+        if [[ ! -f "$${SENTINEL}" ]]; then
+          superset db upgrade
+          superset fab create-admin \
+            --username admin --firstname Superset --lastname Admin \
+            --email admin@example.com --password admin || true
+          superset init
+          touch "$${SENTINEL}"
+        fi
+        exec superset run -h 0.0.0.0 -p 8088
     depends_on:
-      superset-init: {condition: service_completed_successfully}
       clickhouse: {condition: service_healthy}
     ports:
       - "${SUPERSET_HOST_PORT:-18088}:8088"
     environment:
-      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-e2e-only-not-a-real-secret-key}
       SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
     volumes:
       - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - /app/superset_home
+      
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8088/health"]
       interval: 5s
       timeout: 3s
       retries: 60
-
-networks:
-  testnet:

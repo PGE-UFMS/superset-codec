@@ -1,0 +1,17 @@
+slice_name: Shipments by Category
+viz_type: echarts_timeseries_bar
+datasource_table: shipments
+params:
+  metrics:
+    - expressionType: SQL
+      sqlExpression: COUNT(*)
+      label: Shipments
+      optionName: metric_shipments_cat
+  x_axis: shipment_date
+  groupby:
+    - category
+  granularity_sqla: shipment_date
+  time_grain_sqla: P1M
+  time_range: No filter
+  row_limit: 10000
+  show_legend: true

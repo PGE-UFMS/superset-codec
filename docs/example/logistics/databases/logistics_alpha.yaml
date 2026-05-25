@@ -1,0 +1,6 @@
+database_name: Logistics Alpha
+sqlalchemy_uri: ${GOLD_URI}
+expose_in_sqllab: true
+allow_run_async: true
+allow_cvas: false
+allow_dml: false

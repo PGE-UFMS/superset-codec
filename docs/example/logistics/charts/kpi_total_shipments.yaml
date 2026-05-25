@@ -1,0 +1,13 @@
+slice_name: Total Shipments
+viz_type: big_number_total
+datasource_table: shipments
+params:
+  metric:
+    expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: Total Shipments
+    optionName: metric_total_shipments
+  granularity_sqla: shipment_date
+  time_range: No filter
+  subheader: shipments
+  text_align: center

@@ -1,0 +1,40 @@
+dashboard_title: Logistics Alpha
+slug: logistics-alpha
+published: true
+charts:
+  - slice_name: Total Shipments
+    tab: Overview
+    row: 0
+    col: 0
+    width: 4
+    height: 25
+  - slice_name: Delivery Status
+    tab: Overview
+    row: 0
+    col: 4
+    width: 4
+    height: 25
+  - slice_name: Shipments over Time
+    tab: Overview
+    row: 1
+    col: 0
+    width: 12
+    height: 50
+  - slice_name: Shipments Map
+    tab: Analysis
+    row: 0
+    col: 0
+    width: 6
+    height: 50
+  - slice_name: Shipments by Category
+    tab: Analysis
+    row: 0
+    col: 6
+    width: 6
+    height: 50
+  - slice_name: Shipment Detail
+    tab: Detail
+    row: 0
+    col: 0
+    width: 12
+    height: 75

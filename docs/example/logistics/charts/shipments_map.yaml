@@ -1,0 +1,15 @@
+slice_name: Shipments Map
+viz_type: country_map
+datasource_table: shipments
+params:
+  entity: uf
+  metric:
+    expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: Shipments
+    optionName: metric_map
+  select_country: Brazil
+  country_fieldtype: abbr
+  granularity_sqla: shipment_date
+  time_range: No filter
+  row_limit: 50
