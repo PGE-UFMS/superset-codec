@@ -1,0 +1,71 @@
+# Chart name displayed on the dashboard
+slice_name: Time-series Percent Chance [Default]
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: compare
+# Source table/dataset (must exist in datasets/)
+datasource_table: tutorial_flights
+# Visualization-specific configuration
+params:
+  viz_type: compare
+  slice_id: 286
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  granularity_sqla: travel_date
+  time_grain_sqla: P1M
+  time_range: No filter
+  metrics:
+  - aggregate: SUM
+    column:
+      column_name: cost
+      type: FLOAT
+    expressionType: SIMPLE
+    label: SUM(cost)
+    optionName: metric_sum_cost
+  adhoc_filters: []
+  groupby: []
+  order_desc: true
+  contribution: false
+  row_limit: 1000
+  color_scheme: supersetColors
+  x_axis_label: ''
+  bottom_margin: auto
+  x_ticks_layout: auto
+  x_axis_format: smart_date
+  x_axis_showminmax: false
+  y_axis_label: ''
+  left_margin: auto
+  y_axis_showminmax: false
+  y_log_scale: false
+  y_axis_format: SMART_NUMBER
+  y_axis_bounds:
+  - 
+  - 
+  rolling_type: None
+  comparison_type: values
+  annotation_layers: []
+  extra_form_data: {}
+  dashboards:
+  - 28
+query_context_raw: '{"datasource":{"id":44,"type":"table"},"force":false,"queries":[{"time_range":"No filter","granularity":"travel_date","filters":[],"extras":{"time_grain_sqla":"P1M","having":"","where":""},"applied_time_extras":{},"columns":[],"metrics":[{"aggregate":"SUM","column":{"column_name":"cost","type":"FLOAT"},"expressionType":"SIMPLE","label":"SUM(cost)","optionName":"metric_sum_cost"}],"annotation_layers":[],"row_limit":1000,"series_limit":0,"group_others_when_limit_reached":false,"order_desc":true,"url_params":{},"custom_params":{},"custom_form_data":{}}],"form_data":{"datasource":"44__table","viz_type":"compare","slice_id":286,"matrixify_enable":false,"matrixify_mode_columns":"disabled","matrixify_dimension_selection_mode_columns":"members","matrixify_dimension_columns":{"dimension":"","values":[]},"matrixify_topn_value_columns":10,"matrixify_all_sort_by_columns":"a_to_z","matrixify_topn_order_columns":true,"matrixify_show_column_headers":true,"matrixify_fit_columns_dynamically":true,"matrixify_mode_rows":"disabled","matrixify_dimension_selection_mode_rows":"members","matrixify_dimension_rows":{"dimension":"","values":[]},"matrixify_topn_value_rows":10,"matrixify_all_sort_by_rows":"a_to_z","matrixify_topn_order_rows":true,"matrixify_show_row_labels":true,"matrixify_row_height":300,"matrixify_charts_per_row":4,"matrixify_cell_title_template":"","granularity_sqla":"travel_date","time_grain_sqla":"P1M","time_range":"No
+  filter","metrics":[{"aggregate":"SUM","column":{"column_name":"cost","type":"FLOAT"},"expressionType":"SIMPLE","label":"SUM(cost)","optionName":"metric_sum_cost"}],"adhoc_filters":[],"groupby":[],"order_desc":true,"contribution":false,"row_limit":1000,"color_scheme":"supersetColors","x_axis_label":"","bottom_margin":"auto","x_ticks_layout":"auto","x_axis_format":"smart_date","x_axis_showminmax":false,"y_axis_label":"","left_margin":"auto","y_axis_showminmax":false,"y_log_scale":false,"y_axis_format":"SMART_NUMBER","y_axis_bounds":[null,null],"rolling_type":"None","comparison_type":"values","annotation_layers":[],"extra_form_data":{},"dashboards":[28],"force":false,"result_format":"json","result_type":"full"},"result_format":"json","result_type":"full"}'

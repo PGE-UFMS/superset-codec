@@ -1,0 +1,16 @@
+# Enable filter-by-selection in charts
+filter_select_enabled: true
+# Dataset created via SQL Lab
+is_sqllab_view: false
+# Default datetime column for time filters
+main_dttm_col: travel_date
+# Timezone offset in hours
+offset: 0
+# Schema or database within the connection
+schema: main
+# Custom SQL query (empty = use the table directly)
+sql: ''
+# Table or view name
+table_name: tutorial_flights
+# Superset connection name (must exist in databases/)
+database: examples

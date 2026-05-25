@@ -1,0 +1,351 @@
+table_name: tutorial_flights
+main_dttm_col: travel_date
+currency_code_column: null
+description: null
+default_endpoint: null
+offset: 0
+cache_timeout: null
+catalog: null
+schema: main
+sql: ''
+params: null
+template_params: null
+filter_select_enabled: true
+fetch_values_predicate: null
+extra: null
+normalize_columns: false
+always_filter_main_dttm: true
+folders: null
+uuid: a854ddeb-d172-4504-8db5-799864cae3e8
+metrics:
+- metric_name: count
+  verbose_name: COUNT(*)
+  metric_type: count
+  expression: COUNT(*)
+  description: null
+  d3format: null
+  currency: null
+  extra:
+    warning_markdown: ''
+  warning_text: null
+columns:
+- column_name: gb_code
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: STRING
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: "CASE origin_municipality\r\n  WHEN 'Aberdeen'        THEN 'GB-ABE'\r\
+    \n  WHEN 'Belfast'         THEN 'GB-BFS'\r\n  WHEN 'Birmingham'      THEN 'GB-BIR'\r\
+    \n  WHEN 'Blackpool'       THEN 'GB-BPL'\r\n  WHEN 'Bournemouth'     THEN 'GB-BMH'\r\
+    \n  WHEN 'Bristol'         THEN 'GB-BST'\r\n  WHEN 'Cardiff'         THEN 'GB-CRF'\r\
+    \n  WHEN 'Doncaster'       THEN 'GB-DNC'\r\n  WHEN 'Dundee'          THEN 'GB-DND'\r\
+    \n  WHEN 'Durham'          THEN 'GB-DUR'\r\n  WHEN 'Edinburgh'       THEN 'GB-EDH'\r\
+    \n  WHEN 'Glasgow'         THEN 'GB-GLG'\r\n  WHEN 'Leeds'           THEN 'GB-LDS'\r\
+    \n  WHEN 'Liverpool'       THEN 'GB-LIV'\r\n  WHEN 'Manchester'      THEN 'GB-MAN'\r\
+    \n  WHEN 'Newcastle'       THEN 'GB-NET'\r\n  WHEN 'Nottingham'      THEN 'GB-NGM'\r\
+    \n  WHEN 'Plymouth'        THEN 'GB-PLY'\r\n  WHEN 'Southampton'     THEN 'GB-STH'\r\
+    \n  WHEN 'Exeter'          THEN 'GB-DEV'\r\n  WHEN 'Norwich'         THEN 'GB-NFK'\r\
+    \n  WHEN 'Grimsby'         THEN 'GB-NEL'\r\n  WHEN 'Newquay'         THEN 'GB-CON'\r\
+    \n  WHEN 'Inverness'       THEN 'GB-HLD'\r\n  WHEN 'Lerwick'         THEN 'GB-ZET'\r\
+    \n  WHEN 'Orkney Islands'  THEN 'GB-ORK'\r\n  WHEN 'Stornoway'       THEN 'GB-ELS'\r\
+    \n  WHEN 'North Connel'    THEN 'GB-AGB'\r\n  WHEN 'Balemartine'     THEN 'GB-AGB'\r\
+    \n  WHEN 'Balivanich'      THEN 'GB-ELS'\r\n  WHEN 'Eoligarry'       THEN 'GB-ELS'\r\
+    \n  WHEN 'London'          THEN 'GB-LND'\r\nEND\r\n"
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_cartodiagram
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: STRING
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: '''{"type":"Point","coordinates":['' || origin_longitude || '','' ||
+    origin_latitude || '']}'''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_geojson
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: STRING
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: "printf(\n  '{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\"\
+    ,\"coordinates\":[%f,%f]},\"properties\":{}}',\n  destination_longitude,\n  destination_latitude\n\
+    )"
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_ICAO
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_ICAO
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: travel_date
+  verbose_name: null
+  is_dttm: true
+  is_active: true
+  type: DATETIME
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_latitude
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_longitude
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_latitude
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_longitude
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: distance
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: cost
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: FLOAT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: ticket_single_or_return
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: travel_class
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_name
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_country
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_municipality
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: destination_region
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_name
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_country
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: origin_region
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: department
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+- column_name: airline
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: TEXT
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: ''
+  description: null
+  python_date_format: null
+  datetime_format: null
+  extra: {}
+version: 1.0.0
+database_uuid: a2dc77af-e654-49bb-b321-40f6b559a1ee

@@ -1,0 +1,18 @@
+# Allow creation of Virtual Datasets (CVAS)
+allow_cvas: false
+# Allow DML operations (INSERT, UPDATE, DELETE)
+allow_dml: false
+# Allow CSV/Excel file uploads
+allow_file_upload: true
+# Allow asynchronous query execution
+allow_run_async: false
+# Configuration method (sqlalchemy_form or dynamic_form)
+configuration_method: sqlalchemy_form
+# Connection name displayed in Superset
+database_name: examples
+# SQLAlchemy driver
+driver: pysqlite
+# Make this connection available in SQL Lab
+expose_in_sqllab: true
+# SQLAlchemy connection URI. Use ${VAR} for sensitive values
+sqlalchemy_uri: sqlite:////app/superset_home/examples.db?check_same_thread=false
