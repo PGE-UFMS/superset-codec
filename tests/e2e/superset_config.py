@@ -1,5 +1,8 @@
 import os
 
+# For SQLite database examples.db
+PREVENT_UNSAFE_DB_CONNECTIONS = False
+
 SECRET_KEY = os.environ["SUPERSET_SECRET_KEY"]
 SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://superset:superset@postgres:5432/superset"
 WTF_CSRF_ENABLED = True
