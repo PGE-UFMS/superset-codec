@@ -180,30 +180,3 @@ Not detected by roundtrip validation (which only tests queries on the source). S
 | 8 | Roundtrip validates query, not rendering | Low | n/a | Plugin/shader bugs failing at mount aren't detected (see §2/§5.3 of the catalog) | Validation in a separate environment (§9) |
 
 **Recommendation:** for a single source instance evolving in place, the default mode is acceptable. For re-applying to a clean target — especially without dataset hand-edits — run with `--safe` and address risks 1, 2, and 6 via schema evolution.
-
----
-
-## 9. Next Steps
-
-Validate `apply` on a separate clean Superset before using the export as a sync mechanism between environments:
-
-```bash
-superset-codec apply ./examples/export \
-  --url http://localhost:9090 --user admin --password admin
-```
-
-Nominal: 1 database, 1 dataset, 48 charts, 9 dashboards, 29 filter entries per dashboard. Predicted failures in default mode (from §8): `country_map`, `cartodiagram`, `deck_geojson` (calculated columns missing — risk 1); 16 filters rebuilt as `filter_type: select` instead of range/time-column/time-grain (risk 5); all 29 filters rebuilt without `cascadeParentIds`/`inverseSelection`/`sortAscending`/`searchAllOptions`/`defaultToFirstItem`/`enableEmptyFilter`/`adhocFilters` (risk 6); charts losing `query_context` fall back to the codec's generic builder (risk 3). Conformance checks:
-
-| Test | Command | Success criterion |
-|------|---------|-------------------|
-| Count charts | `curl .../api/v1/chart?page_size=1000` | 48 |
-| Count dashboards | `curl .../api/v1/dashboard?page_size=100` | 9 |
-| Validate filters | `curl .../api/v1/dashboard/{id}` | 29 entries in `native_filter_configuration` |
-| Rendering | Open each chart in the UI | Detect §8 failures (risks 1, 2, 5, 7) |
-| Filter type preservation | Inspect `native_filter_configuration` of a re-applied dashboard | 8 `filter_range`, 4 `filter_timecolumn`, 4 `filter_timegrain` rebuilt (currently fails in default mode — risk 5) |
-
-Risks 1, 2, and 6 require schema evolution — not solvable via CLI flags. Risks 3, 4, and 5 can be mitigated immediately by re-running with `--safe`.
-
----
-
-**Report prepared on:** May 25, 2026 · **Tool:** superset-codec v0.1.0 · **Target Superset:** 6.1.0
