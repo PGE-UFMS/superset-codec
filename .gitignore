@@ -17,3 +17,7 @@ docs/paper/
 .DS_Store
 .claude/
 clickhouse/
+
+input
+output
+video_script.md

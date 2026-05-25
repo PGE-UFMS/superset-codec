@@ -8,10 +8,10 @@ Descreva bancos de dados, datasets, charts e dashboards em **YAML** e use `super
 ```
 Superset UI (dev)
       │
-      ▼  superset-codec export ./resources
+      ▼  superset-codec export ./definitions
    Git repo  ←──────────────────────────────
       │
-      ▼  superset-codec apply ./resources
+      ▼  superset-codec apply ./definitions
 Superset (staging / produção)
 ```
 
@@ -43,13 +43,22 @@ Crie ou ajuste seus dashboards na interface web, exporte o estado para arquivos 
 ## Instalação
 
 ```bash
-# Instalar uv (se ainda não tiver)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Criar o ambiente e instalar dependências
 git clone <repo-url>
-cd superset-provision
-uv sync
+cd superset-codec
+
+# Create virtual env
+python3 -m venv .venv
+
+# Activate (macOS / Linux)
+source .venv/bin/activate
+# Activate (Windows)
+#.venv\Scripts\activate
+
+# Install
+pip install -e .
+
+# Verify
+superset-codec --help
 ```
 
 ## Uso
@@ -59,7 +68,7 @@ uv sync
 Cria ou atualiza recursos declarados nos arquivos YAML:
 
 ```bash
-uv run superset-codec apply ./resources \
+uv run superset-codec apply ./definitions \
   --url http://localhost:8088 \
   --user admin \
   --password admin
@@ -68,19 +77,19 @@ uv run superset-codec apply ./resources \
 Se a pasta de recursos contiver um arquivo `.env`, ele é carregado automaticamente para resolver os `${VAR}` nos arquivos YAML. Para usar um arquivo explícito:
 
 ```bash
-uv run superset-codec apply ./resources --vars .env.production
+uv run superset-codec apply ./definitions --vars .env.production
 ```
 
 Apenas passos específicos:
 
 ```bash
-uv run superset-codec apply ./resources --url ... --only databases datasets
+uv run superset-codec apply ./definitions --url ... --only databases datasets
 ```
 
 **Modo seguro** — erros por recurso são logados e pulados; campos `_raw` do export são usados diretamente quando disponíveis:
 
 ```bash
-uv run superset-codec apply ./resources --url ... --safe
+uv run superset-codec apply ./definitions --url ... --safe
 ```
 
 ### `export` — Superset → Git
@@ -88,36 +97,36 @@ uv run superset-codec apply ./resources --url ... --safe
 Exporta o estado atual do Superset para arquivos YAML declarativos:
 
 ```bash
-uv run superset-codec export ./resources \
+uv run superset-codec export ./definitions \
   --url http://localhost:8088 \
   --user admin \
   --password admin
 ```
 
-Se `resources/.env` existir, os valores nele contidos são substituídos por `${VAR}` nos arquivos exportados — dados sensíveis ficam fora do Git:
+Se `definitions/.env` existir, os valores nele contidos são substituídos por `${VAR}` nos arquivos exportados — dados sensíveis ficam fora do Git:
 
 ```bash
-# resources/.env já existe com GOLD_URI=clickhousedb+connect://...
-uv run superset-codec export ./resources --url ...
+# definitions/.env já existe com GOLD_URI=clickhousedb+connect://...
+uv run superset-codec export ./definitions --url ...
 # → databases/gold.yaml terá: sqlalchemy_uri: ${GOLD_URI}
 ```
 
 Apenas passos específicos:
 
 ```bash
-uv run superset-codec export ./resources --url ... --only dashboards charts
+uv run superset-codec export ./definitions --url ... --only dashboards charts
 ```
 
 **Modo seguro** — armazena `query_context_raw`, `position_json_raw` e filtros desconhecidos como `_raw`, garantindo roundtrip para qualquer tipo de chart ou layout:
 
 ```bash
-uv run superset-codec export ./resources --url ... --safe
+uv run superset-codec export ./definitions --url ... --safe
 ```
 
 **Desabilitar validação** — por padrão, cada chart é recriado como `_tmp_*`, testado via `/api/v1/chart/data` e excluído. Use `--no-validate` para pular:
 
 ```bash
-uv run superset-codec export ./resources --url ... --no-validate
+uv run superset-codec export ./definitions --url ... --no-validate
 ```
 
 Passos válidos: `databases`, `datasets`, `charts`, `dashboards`.
@@ -130,10 +139,10 @@ Passos válidos: `databases`, `datasets`, `charts`, `dashboards`.
 | `--safe` | `export` | Armazena `query_context_raw`, `position_json_raw`, filtros desconhecidos como `_raw`. Garante roundtrip para qualquer `viz_type`. |
 | `--no-validate` | `export` | Pula a validação por roundtrip (cria chart temporário, testa dados, exclui). Mais rápido, menos seguro. |
 
-## Estrutura de recursos
+## Estrutura de definitions
 
 ```
-resources/
+definitions/
 ├── .env                  # variáveis de ambiente (não versionado)
 ├── databases/
 │   └── gold.yaml
@@ -260,10 +269,10 @@ native_filters:
 
 ### Interpolação nos arquivos YAML
 
-Crie um arquivo `.env` dentro da pasta de recursos:
+Crie um arquivo `.env` dentro da pasta de definitions:
 
 ```bash
-# resources/.env  (não versionar)
+# definitions/.env  (não versionar)
 GOLD_URI=clickhousedb+connect://default:senha@host:8123/gold
 ```
 
