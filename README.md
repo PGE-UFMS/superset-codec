@@ -1,9 +1,9 @@
 # superset-codec
 
-Um codec declarativo e idempotente para [Apache Superset](https://superset.apache.org/).  
-Descreva bancos de dados, datasets, charts e dashboards em **YAML** e use `superset-codec` para aplicá-los em qualquer ambiente — ou exporte o estado atual do Superset de volta para YAML.
+A round-trip **Dashboard-as-Code** tool for [Apache Superset](https://superset.apache.org/).  
+Databases, datasets, charts, and dashboards are described as version-controlled **YAML** files and provisioned to any environment with a single CLI command. The same files can be generated automatically from an existing Superset instance, making adoption possible without rewriting anything from scratch.
 
-## Fluxo de trabalho UI-first
+## Workflow
 
 ```
 Superset UI (dev)
@@ -12,47 +12,43 @@ Superset UI (dev)
    Git repo  ←──────────────────────────────
       │
       ▼  superset-codec apply ./definitions
-Superset (staging / produção)
+Superset (staging / production)
 ```
 
-Crie ou ajuste seus dashboards na interface web, exporte o estado para arquivos versionáveis e aplique em outros ambientes com um único comando.
+Build or tweak dashboards in the web UI, export the state to versioned files, and apply to other environments with a single command.
 
-## Funcionalidades
+## Features
 
-- **Declarativo** — recursos descritos em YAML legível; o codec decide criar ou atualizar.
-- **Idempotente** — `apply` pode ser executado múltiplas vezes sem efeitos colaterais.
-- **`export`** — converte o estado atual do Superset (incluindo `position_json`, `query_context` e `native_filter_configuration`) para o formato YAML declarativo.
-- **Variáveis com `.env`** — `${VAR}` nos arquivos YAML; o arquivo `.env` da pasta de recursos é carregado automaticamente por ambos os comandos.
-- **Inverse interpolation** — no export, valores concretos presentes no `.env` são substituídos por `${VAR}` automaticamente, mantendo dados sensíveis fora do Git.
-- **Comentários automáticos** — arquivos exportados incluem uma linha de documentação por campo em inglês.
-- **Ordem em cascata** — `apply` segue a ordem de dependências: `databases → datasets → charts → dashboards`.
-- **Tabs em dashboards** — suporte a dashboards com abas; cada chart pode especificar um campo `tab`.
-- **Filtros nativos** — suporte a filtros do tipo `select` e `date` com configuração declarativa.
-- **Embedding automático** — dashboards recebem embedding habilitado após `apply`.
-- **Modo seguro (`--safe`)** — no export, armazena campos verbatim do Superset (`query_context_raw`, `position_json_raw`, filtros desconhecidos como `_raw`) garantindo roundtrip para qualquer `viz_type` ou tipo de filtro; no apply, erros por recurso são logados como warning e pulados em vez de abortar o pipeline.
-- **Validação por roundtrip (padrão)** — cada chart exportado é recriado com nome temporário, testado via endpoint de dados e excluído automaticamente, garantindo que o YAML gerado pode ser re-aplicado com sucesso. Use `--no-validate` para desabilitar.
+- **Declarative** — resources described in human-readable YAML; the codec decides whether to create or update.
+- **Idempotent** — `apply` can run multiple times without side effects.
+- **`export`** — converts the current Superset state (including `position_json`, `query_context`, and `native_filter_configuration`) to declarative YAML.
+- **Variable interpolation** — use `${VAR}` placeholders in YAML files; the `.env` file in the definitions folder is loaded automatically by both commands.
+- **Inverse interpolation** — during export, concrete values present in the `.env` are replaced by `${VAR}` automatically, keeping sensitive data out of Git.
+- **URI variable matching** — any variable whose value parses as a URI matching scheme + host + port + path is used to substitute `sqlalchemy_uri`, regardless of naming convention.
+- **Cascade order** — `apply` follows dependency order: `databases → datasets → charts → dashboards`.
+- **Native filters** — declarative support for `select` and `date` filter types.
+- **Automatic embedding** — dashboards get embedding enabled after `apply`.
+- **Safe mode (`--safe`)** — on export, stores verbatim Superset fields (`query_context_raw`, `position_json_raw`, unknown filters as `_raw`) to guarantee roundtrip for any `viz_type` or filter type; on apply, per-resource errors are logged as warnings and skipped instead of aborting the pipeline.
+- **Roundtrip validation (default)** — each exported chart is recreated under a temporary name, tested via the data endpoint, and deleted automatically. Use `--no-validate` to skip.
 
-## Requisitos
+## Requirements
 
-| Requisito | Versão |
-|-----------|--------|
+| Requirement | Version |
+|-------------|---------|
 | Python | ≥ 3.12 |
-| [uv](https://docs.astral.sh/uv/) | recomendado |
+| [uv](https://docs.astral.sh/uv/) | recommended |
 | Apache Superset | 4.x – 6.x (REST API v1) |
 
-## Instalação
+## Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/PGE-UFMS/superset-codec
 cd superset-codec
 
-# Create virtual env
-python3 -m venv .venv
-
-# Activate (macOS / Linux)
-source .venv/bin/activate
-# Activate (Windows)
-#.venv\Scripts\activate
+# Create and activate the virtual environment
+python -m venv .venv
+source .venv/bin/activate  # macOS / Linux
+# .venv\Scripts\activate   # Windows
 
 # Install
 pip install -e .
@@ -61,287 +57,314 @@ pip install -e .
 superset-codec --help
 ```
 
+## Flights Example
 
-## Examples
+The `examples/flights/` directory contains a complete working example using a ClickHouse dataset of flight records.
 
-### Flights
+**Structure:**
+
+```
+examples/flights/
+├── data/
+│   └── tutorial_flights.csv       # sample dataset
+├── definitions/                   # superset-codec definitions
+│   ├── .env.dev                   # dev environment variables
+│   ├── .env.prod                  # prod environment variables
+│   ├── databases/flightsdb.yaml
+│   ├── datasets/flights.yaml
+│   ├── charts/
+│   └── dashboards/home.yaml
+└── infra/
+    ├── docker-compose.yml         # ClickHouse + PostgreSQL + Superset
+    ├── .env.dev                   # infra config for dev
+    ├── .env.prod                  # infra config for prod
+    └── load_flights.sh            # loads CSV into ClickHouse
+```
+
+**Start the stack:**
 
 ```bash
 cd examples/flights/infra
-docker compose down -v
-# Dev:  
-docker compose --env-file .env.dev up -d --force-recreate
-# Prod: 
-docker compose --env-file .env.prod up -d --force-recreate
 
-clickhousedb+connect://dev:dev@clickhouse:8123/dev
-clickhousedb+connect://prod:prod@clickhouse:8123/prod
+# Dev environment (port 8089)
+docker compose --env-file .env.dev up -d
+
+# Prod environment (port 8088)
+docker compose --env-file .env.prod up -d
 ```
 
+The `loader` service creates the `flightsdb` database in ClickHouse and imports the CSV automatically.
 
+**Apply definitions to Superset:**
 
-## Uso
+```bash
+superset-codec apply ./examples/flights/definitions \
+  --url http://localhost:8088 \
+  --user admin \
+  --password admin \
+  --vars examples/flights/infra/.env.prod
+```
+
+**Export the current state back to YAML:**
+
+```bash
+superset-codec export ./examples/flights/definitions \
+  --url http://localhost:8088 \
+  --user admin \
+  --password admin \
+  --vars examples/flights/definitions/.env.prod
+```
+
+## Usage
 
 ### `apply` — Git → Superset
 
-Cria ou atualiza recursos declarados nos arquivos YAML:
+Creates or updates resources declared in YAML files:
 
 ```bash
-uv run superset-codec apply ./definitions \
+superset-codec apply ./definitions \
   --url http://localhost:8088 \
   --user admin \
   --password admin
 ```
 
-Se a pasta de recursos contiver um arquivo `.env`, ele é carregado automaticamente para resolver os `${VAR}` nos arquivos YAML. Para usar um arquivo explícito:
+If the definitions folder contains a `.env` file, it is loaded automatically to resolve `${VAR}` placeholders. To use an explicit file:
 
 ```bash
-uv run superset-codec apply ./definitions --vars .env.production
+superset-codec apply ./definitions --vars .env.prod
 ```
 
-Apenas passos específicos:
+Run specific steps only:
 
 ```bash
-uv run superset-codec apply ./definitions --url ... --only databases datasets
+superset-codec apply ./definitions --url ... --only databases datasets
 ```
 
-**Modo seguro** — erros por recurso são logados e pulados; campos `_raw` do export são usados diretamente quando disponíveis:
+Safe mode — per-resource errors are logged and skipped; `_raw` fields from export are used directly when present:
 
 ```bash
-uv run superset-codec apply ./definitions --url ... --safe
+superset-codec apply ./definitions --url ... --safe
 ```
 
 ### `export` — Superset → Git
 
-Exporta o estado atual do Superset para arquivos YAML declarativos:
+Exports the current Superset state to declarative YAML files:
 
 ```bash
-uv run superset-codec export ./definitions \
+superset-codec export ./definitions \
   --url http://localhost:8088 \
   --user admin \
   --password admin
 ```
 
-Se `definitions/.env` existir, os valores nele contidos são substituídos por `${VAR}` nos arquivos exportados — dados sensíveis ficam fora do Git:
+If a `.env` file is provided, concrete values are replaced by `${VAR}` placeholders in the exported files:
 
 ```bash
-# definitions/.env já existe com GOLD_URI=clickhousedb+connect://...
-uv run superset-codec export ./definitions --url ...
-# → databases/gold.yaml terá: sqlalchemy_uri: ${GOLD_URI}
+# definitions/.env.prod contains FLIGHTSDB_URI=clickhousedb+connect://...
+superset-codec export ./definitions --url ... --vars .env.prod
+# → databases/flightsdb.yaml will have: sqlalchemy_uri: ${FLIGHTSDB_URI}
 ```
 
-Apenas passos específicos:
+Run specific steps only:
 
 ```bash
-uv run superset-codec export ./definitions --url ... --only dashboards charts
+superset-codec export ./definitions --url ... --only charts dashboards
 ```
 
-**Modo seguro** — armazena `query_context_raw`, `position_json_raw` e filtros desconhecidos como `_raw`, garantindo roundtrip para qualquer tipo de chart ou layout:
+Safe mode — stores `query_context_raw`, `position_json_raw`, and unknown filters as `_raw` for lossless roundtrip:
 
 ```bash
-uv run superset-codec export ./definitions --url ... --safe
+superset-codec export ./definitions --url ... --safe
 ```
 
-**Desabilitar validação** — por padrão, cada chart é recriado como `_tmp_*`, testado via `/api/v1/chart/data` e excluído. Use `--no-validate` para pular:
+Disable validation — by default each chart is recreated as `_tmp_*`, tested via `/api/v1/chart/data`, and deleted. Skip with:
 
 ```bash
-uv run superset-codec export ./definitions --url ... --no-validate
+superset-codec export ./definitions --url ... --no-validate
 ```
 
-Passos válidos: `databases`, `datasets`, `charts`, `dashboards`.
+### Advanced flags
 
-### Flags avançadas
+| Flag | Command | Behavior |
+|------|---------|----------|
+| `--safe` | `apply` | Per-resource errors become warnings; pipeline continues. Uses `_raw` fields when present. |
+| `--safe` | `export` | Stores `query_context_raw`, `position_json_raw`, unknown filters as `_raw`. Guarantees roundtrip for any `viz_type`. |
+| `--no-validate` | `export` | Skips roundtrip validation (create temp chart → test data → delete). Faster, less safe. |
+| `--vars FILE` | both | Path to a `.env` file for variable interpolation / inverse interpolation. |
+| `--only STEP...` | both | Run only the specified steps: `databases`, `datasets`, `charts`, `dashboards`. |
 
-| Flag | Comando | Comportamento |
-|------|---------|---------------|
-| `--safe` | `apply` | Erros por recurso viram warning; continua pipeline. Usa campos `_raw` quando presentes. |
-| `--safe` | `export` | Armazena `query_context_raw`, `position_json_raw`, filtros desconhecidos como `_raw`. Garante roundtrip para qualquer `viz_type`. |
-| `--no-validate` | `export` | Pula a validação por roundtrip (cria chart temporário, testa dados, exclui). Mais rápido, menos seguro. |
-
-## Estrutura de definitions
+## Definitions Structure
 
 ```
 definitions/
-├── .env                  # variáveis de ambiente (não versionado)
+├── .env                  # environment variables (not committed)
 ├── databases/
-│   └── gold.yaml
+│   └── flightsdb.yaml
 ├── datasets/
-│   └── minha_tabela.yaml
+│   └── flights.yaml
 ├── charts/
-│   ├── kpi_total.yaml
-│   └── evolucao_mensal.yaml
+│   ├── total_cost.yaml
+│   └── total_cost_by_airline.yaml
 └── dashboards/
-    └── painel_geral.yaml
+    └── home.yaml
 ```
 
-Subpastas são suportadas em `charts/` para organização por tema.
+Subdirectories inside `charts/` are supported for organizing by theme.
 
-## Exemplos de arquivos
+## YAML File Reference
 
-### `databases/gold.yaml`
+### `databases/flightsdb.yaml`
 
 ```yaml
 # Connection name displayed in Superset
-database_name: gold
-# SQLAlchemy connection URI. Use ${VAR} for sensitive values
-sqlalchemy_uri: ${GOLD_URI}
+database_name: FlightsDb
+# SQLAlchemy connection URI — use ${VAR} to keep credentials out of Git
+sqlalchemy_uri: ${FLIGHTSDB_URI}
 # Make this connection available in SQL Lab
 expose_in_sqllab: true
-allow_run_async: true
-allow_cvas: true
+allow_run_async: false
+allow_cvas: false
 allow_dml: false
+allow_file_upload: false
+configuration_method: sqlalchemy_form
+driver: connect
 ```
 
-### `datasets/processos_novos_wide.yaml`
+### `datasets/flights.yaml`
 
 ```yaml
 # Table or view name
-table_name: processos_novos_wide
+table_name: flights
 # Superset connection name (must exist in databases/)
-database: gold
+database: FlightsDb
 # Schema or database within the connection
-schema: gold
+schema: flightsdb
+# Default datetime column for time filters
+main_dttm_col: Travel Date
+filter_select_enabled: true
+is_sqllab_view: false
+offset: 0
 ```
 
-### `charts/kpi_total.yaml`
+### `charts/total_cost.yaml`
 
 ```yaml
 # Chart name displayed on the dashboard
-slice_name: Total de Processos
-# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+slice_name: Total Cost
+# Visualization type
 viz_type: big_number_total
-# Source table/dataset (must exist in datasets/)
-datasource_table: processos_novos_wide
-# Visualization-specific configuration
+# Source dataset (must exist in datasets/)
+datasource_table: flights
+# Visualization-specific parameters
 params:
-  metric: count
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: Cost
+    aggregate: SUM
+  y_axis_format: SMART_NUMBER
   time_range: No filter
 ```
 
-Tipos de visualização mapeados com `query_context` gerado automaticamente:
+Supported `viz_type` values with automatic `query_context` generation:
 
-| `viz_type` | Descrição |
+| `viz_type` | Description |
 |---|---|
-| `big_number_total` | KPI — número único |
-| `echarts_timeseries_line` | Linha temporal |
-| `echarts_timeseries_bar` | Barras (por categoria ou temporal) |
-| `pie` | Pizza |
-| `country_map` | Mapa coroplético por país |
-| outros | Fallback genérico — aceito pelo Superset para a maioria dos tipos |
+| `big_number_total` | Single KPI number |
+| `echarts_timeseries_line` | Time series line chart |
+| `echarts_timeseries_bar` | Bar chart (by category or time) |
+| `pie` | Pie chart |
+| `country_map` | Choropleth map by country |
+| others | Generic fallback — accepted by Superset for most types |
 
-### `dashboards/painel_geral.yaml`
+### `dashboards/home.yaml`
 
 ```yaml
 # Title displayed in Superset
-dashboard_title: Painel Geral
+dashboard_title: Home
 # Unique identifier used in the URL and embedding
-slug: painel-geral
+slug: home
 # Visible to all users (false = admins only)
-published: true
+published: false
 # Chart list with grid positions (row/col/width/height)
 charts:
-  - slice_name: Total de Processos
+  - slice_name: Total Cost by Airline
     row: 0
     col: 0
-    width: 6
-    height: 20
-  - slice_name: Evolução Mensal
+    width: 4
+    height: 50
+  - slice_name: Total Trips
+    row: 0
+    col: 2
+    width: 2
+    height: 50
+  - slice_name: Cost Data
     row: 1
     col: 0
     width: 12
-    height: 45
-  # Charts com campo "tab" formam um layout com abas
-  - slice_name: Ranking por Área
-    row: 2
-    col: 0
-    width: 12
-    height: 45
-    tab: Por Área
-  - slice_name: Ranking por Procurador
-    row: 2
-    col: 0
-    width: 12
-    height: 45
-    tab: Por Procurador
-```
-
-### Filtros nativos
-
-```yaml
+    height: 50
 # Native filters applied to the dashboard
 native_filters:
-  - name: Período
-    column: dt_registro
-    dataset: processos_novos_wide
-    filter_type: date            # "date" ou "select" (padrão)
-    default_value: No filter
-
-  - name: Área
-    column: area_nome_area
-    dataset: processos_novos_wide
-    filter_type: select
-    multi_select: true           # padrão: true
-    default_value: current_year  # ou valor fixo, ou lista
+  - name: Travel Class
+    column: Travel Class
+    dataset: flights
+    filter_type: select   # "select" or "date"
+    multi_select: false
 ```
 
-## Variáveis de ambiente
+Native filter options:
 
-### Interpolação nos arquivos YAML
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | string | required | Label shown in the filter bar |
+| `column` | string | required | Column in the dataset |
+| `dataset` | string | required | Dataset name (must exist in `datasets/`) |
+| `filter_type` | string | `select` | `select` or `date` |
+| `multi_select` | bool | `true` | Allow multiple selections (select only) |
+| `default_value` | any | none | Pre-selected value; `current_year` is a special keyword |
 
-Crie um arquivo `.env` dentro da pasta de definitions:
+## Environment Variables
+
+### Variable interpolation in YAML files
+
+Create a `.env` file inside the definitions folder:
 
 ```bash
-# definitions/.env  (não versionar)
-GOLD_URI=clickhousedb+connect://default:senha@host:8123/gold
+# definitions/.env.prod  (do not commit)
+FLIGHTSDB_URI=clickhousedb+connect://prod:prod@clickhouse:8123/flightsdb
 ```
 
-O `apply` resolve `${GOLD_URI}` antes de enviar à API. O `export` substitui o valor concreto por `${GOLD_URI}` nos arquivos gerados.
+`apply` resolves `${FLIGHTSDB_URI}` before sending to the API. `export` detects any variable whose value parses as a URI matching the connection (scheme + host + port + path) and substitutes the `sqlalchemy_uri` field automatically — even when Superset returns the password masked.
 
-### Configuração da CLI
+### CLI environment variables
 
-| Variável | Flag equivalente | Padrão |
-|----------|-----------------|--------|
+| Variable | Equivalent flag | Default |
+|----------|----------------|---------|
 | `SUPERSET_URL` | `--url` | `http://localhost:8090` |
 | `SUPERSET_ADMIN_USERNAME` | `--user` | `admin` |
 | `SUPERSET_ADMIN_PASSWORD` | `--password` | `admin` |
 
-## Testes
+## Tests
 
-Os testes E2E sobem um stack Docker isolado (ClickHouse + PostgreSQL + Superset), semeiam dados e exercitam `apply` e `export` contra a API real.
+End-to-end tests spin up an isolated Docker stack (ClickHouse + PostgreSQL + Superset), seed data, and exercise `apply` and `export` against the real API.
 
 ```bash
 uv sync --group dev
 
-uv run pytest tests/e2e -m e2e        # E2E completo (~3 min na 1ª execução)
-uv run pytest -m "not e2e"            # apenas testes sem Docker
+uv run pytest tests/e2e -m e2e        # full E2E (~3 min on first run)
+uv run pytest -m "not e2e"            # unit tests only (no Docker)
 ```
 
-### Rodar contra uma instância já em execução
+Use `KEEP_STACK=1` to keep the containers alive after the test run.
 
-Se o Superset e o ClickHouse já estiverem rodando localmente, pule o docker-compose:
+### Running against an existing instance
 
 ```bash
 SUPERSET_URL=http://localhost:8090 \
 CLICKHOUSE_HOST_PORT=8123 \
-GOLD_URI="clickhousedb+connect://default:@host.docker.internal:8123/default" \
+FLIGHTSDB_URI="clickhousedb+connect://default:@host.docker.internal:8123/flightsdb" \
 uv run pytest tests/e2e -m e2e -v
 ```
-
-### Cobertura de viz types
-
-Os testes são parametrizados por tipo de visualização para garantir que `_build_query_context` gera um payload aceito pelo Superset:
-
-| Teste | Garante |
-|---|---|
-| `test_apply_chart_viz_type[big_number_total]` | KPI criado sem erro |
-| `test_apply_chart_viz_type[echarts_timeseries_line]` | Linha temporal criada |
-| `test_apply_chart_viz_type[echarts_timeseries_bar]` | Barras criadas |
-| `test_apply_chart_viz_type[table]` | Tabela criada (fallback genérico) |
-| `test_apply_dashboard_with_tabs` | Layout com abas aplicado |
-| `test_apply_is_idempotent` | Nenhum recurso duplicado em dois applies |
-| `test_export_apply_roundtrip` | Export gera YAML; re-apply não duplica |
-
-Use `KEEP_STACK=1` para manter os containers após os testes.
 
 ## Build
 
@@ -349,8 +372,8 @@ Use `KEEP_STACK=1` para manter os containers após os testes.
 uv build
 ```
 
-O wheel gerado fica em `dist/`.
+The generated wheel is placed in `dist/`.
 
-## Licença
+## License
 
-Veja [LICENSE](LICENSE) para detalhes.
+See [LICENSE](LICENSE) for details.
