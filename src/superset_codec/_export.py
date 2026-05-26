@@ -10,6 +10,33 @@ from ._positions import decompose_position_json
 
 log = logging.getLogger(__name__)
 
+def _match_uri_var(masked_uri: str, variables: dict[str, str]) -> str | None:
+    """Return ``${VAR}`` if a ``*_URI`` variable matches *masked_uri* ignoring the password.
+
+    Superset's /connection endpoint masks the password as XXXXXXXXXX. Comparing scheme,
+    user, host, port, and path is enough to identify the matching variable; the password
+    field is intentionally excluded from the comparison.
+    """
+    from urllib.parse import urlparse
+    try:
+        mp = urlparse(masked_uri)
+    except Exception:
+        return None
+    for key, value in variables.items():
+        try:
+            vp = urlparse(value)
+        except Exception:
+            continue
+        if not vp.scheme or not vp.hostname:
+            continue
+        if (vp.scheme   == mp.scheme   and
+                vp.hostname == mp.hostname and
+                vp.port     == mp.port     and
+                vp.path     == mp.path):
+            log.debug("  URI matched variable ${%s}", key)
+            return f"${{{key}}}"
+    return None
+
 
 class ExportMixin:
     """Mixin that adds ``export`` and ``_export_*`` methods to a SupersetClient subclass."""
@@ -89,6 +116,16 @@ class ExportMixin:
                         conn = self._get_resource("/api/v1/database", ref.id, suffix="/connection")
                         uri = conn.get("sqlalchemy_uri") or conn.get("parameters", {}).get("sqlalchemy_uri")
                         if uri:
+                            if self.variables:
+                                placeholder = _match_uri_var(uri, self.variables)
+                                if placeholder:
+                                    uri = placeholder
+                                else:
+                                    log.warning(
+                                        "  No *_URI variable matched sqlalchemy_uri for '%s'; "
+                                        "add DBNAME_URI=<full-uri> to --vars file.",
+                                        ref.database_name,
+                                    )
                             data["sqlalchemy_uri"] = uri
                             log.debug("  URI fetched via /connection: %s", uri)
                     except Exception as exc:
