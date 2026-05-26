@@ -1,0 +1,18 @@
+# Allow creation of Virtual Datasets (CVAS)
+allow_cvas: false
+# Allow DML operations (INSERT, UPDATE, DELETE)
+allow_dml: false
+# Allow CSV/Excel file uploads
+allow_file_upload: false
+# Allow asynchronous query execution
+allow_run_async: false
+# Configuration method (sqlalchemy_form or dynamic_form)
+configuration_method: sqlalchemy_form
+# Connection name displayed in Superset
+database_name: FlightsDb
+# SQLAlchemy driver
+driver: connect
+# Make this connection available in SQL Lab
+expose_in_sqllab: true
+# SQLAlchemy connection URI. Use ${VAR} for sensitive values
+sqlalchemy_uri: clickhousedb+connect://dev:XXXXXXXXXX@clickhouse:8123/flightsdb

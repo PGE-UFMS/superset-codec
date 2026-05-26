@@ -1,0 +1,41 @@
+# Title displayed in Superset
+dashboard_title: Home
+# Unique identifier used in the URL and embedding
+slug: home
+# Visible to all users (false = admins only)
+published: false
+# Chart list with grid positions (row/col/width/height)
+charts:
+- slice_name: Total Cost by Airline
+  row: 0
+  col: 0
+  width: 4
+  height: 50
+- slice_name: Total Cost by Region
+  row: 0
+  col: 1
+  width: 4
+  height: 50
+- slice_name: Total Trips
+  row: 0
+  col: 2
+  width: 2
+  height: 50
+- slice_name: Total Cost
+  row: 0
+  col: 3
+  width: 2
+  height: 50
+- slice_name: Cost Data
+  row: 1
+  col: 0
+  width: 12
+  height: 50
+# Native filters applied to the dashboard
+native_filters:
+- name: Travel Class
+  column: Travel Class
+  dataset: flights
+  filter_type: select
+  multi_select: false
+filter_bar_orientation: HORIZONTAL

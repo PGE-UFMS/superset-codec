@@ -1,0 +1,120 @@
+# Chart name displayed on the dashboard
+slice_name: Cost Data
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: table
+# Source table/dataset (must exist in datasets/)
+datasource_table: flights
+# Visualization-specific configuration
+params:
+  viz_type: table
+  adhoc_filters:
+  - clause: WHERE
+    subject: Travel Date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    expressionType: SIMPLE
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 3
+  matrixify_cell_title_template: ''
+  query_mode: aggregate
+  groupby:
+  - Department
+  - Airline
+  - Origin Name
+  - Origin Region
+  time_grain_sqla: P1D
+  temporal_columns_lookup:
+    Travel Date: true
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      advanced_data_type:
+      certification_details:
+      certified_by:
+      column_name: Cost
+      description:
+      expression:
+      filterable: true
+      groupby: true
+      id: 2
+      is_certified: false
+      is_dttm: false
+      python_date_format:
+      type: FLOAT64
+      type_generic: 0
+      uuid: 6daffdd5-c15f-4d19-ab5c-f5daa0194b16
+      verbose_name:
+      warning_markdown:
+    aggregate: SUM
+    sqlExpression:
+    datasourceWarning: false
+    hasCustomLabel: false
+    label: SUM(Cost)
+    optionName: metric_cdtwfybfd8s_0aes8wv2j9zk
+  - expressionType: SIMPLE
+    column:
+      advanced_data_type:
+      certification_details:
+      certified_by:
+      column_name: Distance
+      description:
+      expression:
+      filterable: true
+      groupby: true
+      id: 20
+      is_certified: false
+      is_dttm: false
+      python_date_format:
+      type: column
+      type_generic: 0
+      uuid: a1646a09-3a44-41a8-ae8b-2384338df964
+      verbose_name:
+      warning_markdown:
+    aggregate: SUM
+    sqlExpression:
+    datasourceWarning: false
+    hasCustomLabel: false
+    label: SUM(Distance)
+    optionName: metric_k36lr64jkqj_gor9qyj9uf
+  all_columns: []
+  percent_metrics: []
+  order_by_cols: []
+  order_desc: true
+  server_pagination: false
+  server_page_length: 10
+  row_limit: 10000
+  percent_metric_calculation: row_limit
+  show_totals: false
+  table_timestamp_format: smart_date
+  include_search: false
+  allow_rearrange_columns: false
+  allow_render_html: true
+  show_cell_bars: true
+  align_pn: false
+  color_pn: true
+  comparison_color_enabled: false
+  comparison_color_scheme: Green
+  comparison_type: values
+  extra_form_data: {}
+  dashboards:
+  - 1

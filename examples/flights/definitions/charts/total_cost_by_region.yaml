@@ -1,0 +1,88 @@
+# Chart name displayed on the dashboard
+slice_name: Total Cost by Region
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: pie
+# Source table/dataset (must exist in datasets/)
+datasource_table: flights
+# Visualization-specific configuration
+params:
+  viz_type: pie
+  adhoc_filters:
+  - clause: WHERE
+    subject: Travel Date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    expressionType: SIMPLE
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  groupby:
+  - Origin Region
+  metric:
+    expressionType: SIMPLE
+    column:
+      advanced_data_type:
+      certification_details:
+      certified_by:
+      column_name: Cost
+      description:
+      expression:
+      filterable: true
+      groupby: true
+      id: 2
+      is_certified: false
+      is_dttm: false
+      python_date_format:
+      type: column
+      type_generic: 0
+      uuid: 6daffdd5-c15f-4d19-ab5c-f5daa0194b16
+      verbose_name:
+      warning_markdown:
+    aggregate: SUM
+    sqlExpression:
+    datasourceWarning: false
+    hasCustomLabel: false
+    label: SUM(Cost)
+    optionName: metric_f7ze2mto0st_svktd8pp3jd
+  row_limit: 100
+  sort_by_metric: true
+  color_scheme: supersetColors
+  show_labels_threshold: 5
+  threshold_for_other: 0
+  roseType:
+  show_legend: true
+  legendType: scroll
+  legendOrientation: right
+  label_type: key
+  number_format: SMART_NUMBER
+  date_format: smart_date
+  show_labels: true
+  labels_outside: true
+  label_line: false
+  show_total: false
+  outerRadius: 65
+  donut: true
+  innerRadius: 30
+  extra_form_data: {}
+  dashboards:
+  - 1
