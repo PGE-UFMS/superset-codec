@@ -61,6 +61,25 @@ pip install -e .
 superset-codec --help
 ```
 
+
+## Examples
+
+### Flights
+
+```bash
+cd examples/flights/infra
+docker compose down -v
+# Dev:  
+docker compose --env-file .env.dev up -d --force-recreate
+# Prod: 
+docker compose --env-file .env.prod up -d --force-recreate
+
+clickhousedb+connect://dev:dev@clickhouse:8123/dev
+clickhousedb+connect://prod:prod@clickhouse:8123/prod
+```
+
+
+
 ## Uso
 
 ### `apply` — Git → Superset

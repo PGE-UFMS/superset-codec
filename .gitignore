@@ -10,7 +10,7 @@ wheels/
 .venv
 
 .env
-resources/
+/examples/flights/definitions
 
 gcs/
 docs/paper/

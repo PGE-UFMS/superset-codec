@@ -1,0 +1,101 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+      POSTGRES_DB: superset
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "${CLICKHOUSE_NATIVE_PORT:-9000}:9000"
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-default}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - ch_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  superset:
+    image: apache/superset:latest
+    platform: linux/amd64
+    user: root
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-insecure-default-key}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-superset}
+      SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:superset@db/superset"
+      REDIS_URL: "redis://redis:6379/0"
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+    command:
+      - /bin/bash
+      - -c
+      - |
+        uv pip install --python /app/.venv/bin/python --no-cache-dir \
+          clickhouse-connect==0.8.6 \
+          psycopg2-binary==2.9.9 &&
+        superset db upgrade &&
+        superset fab create-admin \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --email ${SUPERSET_ADMIN_EMAIL:-admin@example.com} \
+          --password admin || true &&
+        superset init &&
+        superset run -h 0.0.0.0 -p 8088
+
+  loader:
+    image: alpine/curl:latest
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      CLICKHOUSE_URL: http://${CLICKHOUSE_USER:-default}:${CLICKHOUSE_PASSWORD:-}@clickhouse:8123
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-default}
+      CSV: /data/tutorial_flights.csv
+    volumes:
+      - ../data:/data:ro
+      - ./load_flights.sh:/load_flights.sh:ro
+    command: sh /load_flights.sh
+    restart: "no"
+
+volumes:
+  pg_data:
+  ch_data:
+
+# Dev:  docker compose --env-file .env.dev  up -d
+# Prod: docker compose --env-file .env.prod up -d
+# Conexao ClickHouse no Superset: clickhousedb+connect://default@clickhouse:8123/${CLICKHOUSE_DB}

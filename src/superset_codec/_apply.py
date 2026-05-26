@@ -390,6 +390,7 @@ class ApplyMixin:
 
     def sync_dashboards(self) -> None:
         """Create or update dashboards from ``dashboards/`` files."""
+        self.list_datasets()
         self.list_charts()
         self.list_dashboards()
         counter = 0

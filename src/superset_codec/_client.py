@@ -229,9 +229,18 @@ class SupersetClient:
         ids, items = self._list_resources(
             "/api/v1/dashboard/", "slug", "dashboard_title", "uuid"
         )
+        valid_ids, valid_items = [], []
+        for resource_id, item in zip(ids, items, strict=True):
+            if item.get("slug"):
+                valid_ids.append(resource_id)
+                valid_items.append(item)
+            else:
+                title = item.get("dashboard_title", f"id={resource_id}")
+                log.warning("Dashboard '%s' has no slug — cannot export.", title)
+                self._record("dashboards", title, ok=False)
         self._dashboard_map = {
             k: DashboardRef(**v)
-            for k, v in self._map_by_field(ids, items, "slug").items()
+            for k, v in self._map_by_field(valid_ids, valid_items, "slug").items()
         }
         return self._dashboard_map.values()
 
