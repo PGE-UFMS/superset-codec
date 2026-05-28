@@ -147,7 +147,8 @@ class ApplyMixin:
                 return
             db_id = db_ref.id
 
-        if table_name not in self._dataset_map:
+        key = (catalog, schema, table_name)
+        if key not in self._dataset_map:
             creation_props = {k: props[k] for k in DatasetRef.CREATION_PARAMS if k in props}
             if db_id is not None:
                 creation_props["database"] = db_id
@@ -161,11 +162,11 @@ class ApplyMixin:
                 table_name=table_name,
                 database=db_id,
             )
-            self._dataset_map[table_name] = ref
+            self._dataset_map[key] = ref
             log.info("  Created: %s (id=%s)", table_name, ref.id)
 
         # PUT does not accept 'database'; applies remaining fields
-        self._update("/api/v1/dataset", self._dataset_map[table_name].id, props)
+        self._update("/api/v1/dataset", self._dataset_map[key].id, props)
         log.info("  Updated: %s", table_name)
 
     def sync_datasets(self) -> None:
@@ -196,7 +197,7 @@ class ApplyMixin:
 
         ds_table = props.pop("datasource_table", None)
         if ds_table:
-            ds_ref = self._dataset_map.get(ds_table)
+            ds_ref = self.resolve_dataset_ref(ds_table)
             if ds_ref is None:
                 log.warning("Dataset '%s' not found — skipping chart '%s'.", ds_table, slice_name)
                 return
@@ -319,10 +320,14 @@ class ApplyMixin:
         else:
             position_json = build_position_json(charts_with_ids, title=title)
 
+        def _resolve_ds_id(ref):
+            ds = self.resolve_dataset_ref(ref)
+            return ds.id if ds else None
+
         native_filter_config = (
             build_native_filters(
                 native_filters_def,
-                {k: v.id for k, v in self._dataset_map.items()},
+                _resolve_ds_id,
                 charts_in_scope=[item["chart_id"] for item in charts_with_ids],
             )
             if native_filters_def else []

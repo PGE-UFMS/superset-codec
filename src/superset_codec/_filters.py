@@ -5,7 +5,7 @@ export side: simplify_native_filter  — Superset filter config → declarative 
 """
 import logging
 import uuid
-from typing import Any
+from typing import Any, Callable
 
 log = logging.getLogger(__name__)
 
@@ -14,12 +14,16 @@ _KNOWN_FILTER_TYPES = {"filter_select", "filter_time"}
 
 def build_native_filters(
     filters: list[dict],
-    dataset_name_to_id: dict[str, int],
+    resolve_dataset_id: Callable[[str | dict], int | None],
     charts_in_scope: list[int] | None = None,
 ) -> list[dict]:
     """Convert declarative filter definitions to Superset's native filter JSON.
 
-    Each filter requires: ``name``, ``column``, ``dataset``.
+    Each filter requires: ``name``, ``column``, ``dataset``. The ``dataset`` field
+    accepts either a string ``table_name`` or a dict
+    ``{"table_name", "schema"?, "catalog"?}`` to disambiguate. Resolution is
+    delegated to ``resolve_dataset_id``.
+
     Optional: ``multi_select`` (default True), ``description``, ``default_value``,
     ``filter_type`` (``"select"`` | ``"date"``).
 
@@ -40,7 +44,7 @@ def build_native_filters(
             log.debug("  Filter '%s' restored from _raw.", f.get("name", "?"))
             continue
 
-        dataset_id = dataset_name_to_id.get(f["dataset"])
+        dataset_id = resolve_dataset_id(f["dataset"])
         if not dataset_id:
             log.warning(
                 "Dataset '%s' not found for filter '%s' — skipping.", f["dataset"], f["name"]
@@ -109,7 +113,7 @@ def build_native_filters(
 
 def simplify_native_filter(
     f: dict,
-    id_to_dataset: dict[int, str],
+    id_to_dataset: dict[int, str | dict],
     *,
     safe_mode: bool = False,
 ) -> dict:

@@ -38,7 +38,7 @@ class SupersetClient:
         self.validate = True
 
         self._database_map:  dict[str, DatabaseRef] = {}
-        self._dataset_map:   dict[str, DatasetRef]  = {}
+        self._dataset_map:   dict[tuple[str | None, str | None, str], DatasetRef] = {}
         self._chart_map:     dict[str, ChartRef]    = {}
         self._dashboard_map: dict[str, DashboardRef] = {}
 
@@ -209,11 +209,51 @@ class SupersetClient:
         ids, items = self._list_resources(
             "/api/v1/dataset/", "catalog", "schema", "table_name", "database.id", "uuid"
         )
-        self._dataset_map = {}
-        for k, v in self._map_by_field(ids, items, "table_name").items():
-            database_id = v.pop("database")["id"]
-            self._dataset_map[k] = DatasetRef(database=database_id, **v)
+        self._dataset_map = self._build_dataset_map(ids, items)
         return self._dataset_map.values()
+
+    @staticmethod
+    def _build_dataset_map(
+        ids: list[int], items: list[dict]
+    ) -> dict[tuple[str | None, str | None, str], DatasetRef]:
+        out: dict[tuple[str | None, str | None, str], DatasetRef] = {}
+        for resource_id, item in zip(ids, items, strict=True):
+            database_id = item.pop("database")["id"]
+            ref = DatasetRef(id=resource_id, database=database_id, **item)
+            key = ref.provision_key()
+            if key in out:
+                log.warning("Duplicate dataset key %s", key)
+            out[key] = ref
+        return out
+
+    def find_dataset_by_table_name(self, table_name: str) -> DatasetRef | None:
+        """Resolve a dataset by its ``table_name`` alone.
+
+        Warns when multiple datasets share the table name and returns the first match.
+        Prefer :meth:`resolve_dataset_ref` to disambiguate via ``catalog``/``schema``.
+        """
+        matches = [r for r in self._dataset_map.values() if r.table_name == table_name]
+        if len(matches) > 1:
+            keys = [r.provision_key() for r in matches]
+            log.warning(
+                "Ambiguous dataset table_name '%s' matches %s — using first.",
+                table_name, keys,
+            )
+        return matches[0] if matches else None
+
+    def resolve_dataset_ref(self, ref: str | dict) -> DatasetRef | None:
+        """Resolve a YAML dataset reference (string or dict) to a ``DatasetRef``.
+
+        - ``"orders"`` → fuzzy lookup by ``table_name`` (warns on ambiguity).
+        - ``{"table_name": "orders", "schema": "public", "catalog": "prod"}`` →
+          exact lookup by ``(catalog, schema, table_name)``; missing keys default to None.
+        """
+        if isinstance(ref, dict):
+            key = (ref.get("catalog"), ref.get("schema"), ref["table_name"])
+            return self._dataset_map.get(key)
+        if isinstance(ref, str):
+            return self.find_dataset_by_table_name(ref)
+        return None
 
     def list_charts(self) -> Iterable[ChartRef]:
         ids, items = self._list_resources(
