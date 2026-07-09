@@ -1,0 +1,62 @@
+slice_name: Bullet [Default]
+description: null
+certified_by: null
+certification_details: null
+viz_type: bullet
+params:
+  datasource: 44__table
+  viz_type: bullet
+  slice_id: 270
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  metric:
+    aggregate: AVG
+    column:
+      column_name: cost
+      type: FLOAT
+    expressionType: SIMPLE
+    label: AVG(cost)
+    optionName: metric_avg_cost
+  adhoc_filters:
+  - clause: WHERE
+    comparator: No filter
+    expressionType: SIMPLE
+    operator: TEMPORAL_RANGE
+    subject: travel_date
+  ranges: 100,500,1000
+  range_labels: Low,Mid,High
+  markers: '800'
+  marker_labels: ''
+  marker_lines: ''
+  marker_line_labels: ''
+  extra_form_data: {}
+  dashboards:
+  - 30
+query_context: '{"datasource":{"id":44,"type":"table"},"force":false,"queries":[{"filters":[{"col":"travel_date","op":"TEMPORAL_RANGE","val":"No
+  filter"}],"extras":{"having":"","where":""},"applied_time_extras":{},"columns":[],"metrics":[{"aggregate":"AVG","column":{"column_name":"cost","type":"FLOAT"},"expressionType":"SIMPLE","label":"AVG(cost)","optionName":"metric_avg_cost"}],"annotation_layers":[],"series_limit":0,"group_others_when_limit_reached":false,"order_desc":true,"url_params":{},"custom_params":{},"custom_form_data":{}}],"form_data":{"datasource":"44__table","viz_type":"bullet","slice_id":270,"matrixify_enable":false,"matrixify_mode_columns":"disabled","matrixify_dimension_selection_mode_columns":"members","matrixify_dimension_columns":{"dimension":"","values":[]},"matrixify_topn_value_columns":10,"matrixify_all_sort_by_columns":"a_to_z","matrixify_topn_order_columns":true,"matrixify_show_column_headers":true,"matrixify_fit_columns_dynamically":true,"matrixify_mode_rows":"disabled","matrixify_dimension_selection_mode_rows":"members","matrixify_dimension_rows":{"dimension":"","values":[]},"matrixify_topn_value_rows":10,"matrixify_all_sort_by_rows":"a_to_z","matrixify_topn_order_rows":true,"matrixify_show_row_labels":true,"matrixify_row_height":300,"matrixify_charts_per_row":4,"matrixify_cell_title_template":"","metric":{"aggregate":"AVG","column":{"column_name":"cost","type":"FLOAT"},"expressionType":"SIMPLE","label":"AVG(cost)","optionName":"metric_avg_cost"},"adhoc_filters":[{"clause":"WHERE","comparator":"No
+  filter","expressionType":"SIMPLE","operator":"TEMPORAL_RANGE","subject":"travel_date"}],"ranges":"100,500,1000","range_labels":"Low,Mid,High","markers":"800","marker_labels":"","marker_lines":"","marker_line_labels":"","extra_form_data":{},"dashboards":[30],"force":false,"result_format":"json","result_type":"full"},"result_format":"json","result_type":"full"}'
+cache_timeout: null
+uuid: 5b407551-88c8-428d-8544-9d62d79c717b
+version: 1.0.0
+dataset_uuid: a854ddeb-d172-4504-8db5-799864cae3e8

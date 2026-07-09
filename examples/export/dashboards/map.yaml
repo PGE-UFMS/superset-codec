@@ -1,0 +1,228 @@
+# Title displayed in Superset
+dashboard_title: Map
+# Unique identifier used in the URL and embedding
+slug: map
+# Visible to all users (false = admins only)
+published: true
+# Chart list with grid positions (row/col/width/height)
+charts:
+- slice_name: Country Map [Default]
+  row: 0
+  col: 0
+  width: 6
+  height: 50
+- slice_name: World Map [Default]
+  row: 0
+  col: 1
+  width: 6
+  height: 50
+- slice_name: MapBox [Default]
+  row: 1
+  col: 0
+  width: 6
+  height: 50
+- slice_name: deck.gl Arc [Default]
+  row: 1
+  col: 1
+  width: 6
+  height: 50
+- slice_name: deck.gl Scatterplot [Default]
+  row: 2
+  col: 0
+  width: 6
+  height: 50
+- slice_name: deck.gl Heatmap [Default]
+  row: 2
+  col: 1
+  width: 6
+  height: 50
+- slice_name: deck.gl Screengrid [Default]
+  row: 3
+  col: 0
+  width: 6
+  height: 50
+- slice_name: deck.gl Contour [Custom Cell-Thresholds]
+  row: 3
+  col: 1
+  width: 6
+  height: 50
+- slice_name: deck.gl GeoJson [Default]
+  row: 4
+  col: 0
+  width: 6
+  height: 50
+- slice_name: deck.gl Multiple Layers [Default]
+  row: 4
+  col: 1
+  width: 6
+  height: 50
+- slice_name: Cartodiagram [Default]
+  row: 5
+  col: 0
+  width: 6
+  height: 50
+# Native filters applied to the dashboard
+native_filters:
+- name: Value [Default]
+  column: destination_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: '[Value] Values are dependent on other filters '
+  column: airline
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Pre-filter available values]
+  column: origin_municipality
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Sort filter values]
+  column: origin_name
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Filter has default value]
+  column: origin_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - United Kingdom
+- name: Value [Filter value is required]
+  column: origin_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - United Kingdom
+- name: ' Value [Select first filter value by default]'
+  column: ticket_single_or_return
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Can't select multiple values]
+  column: travel_class
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: false
+- name: Value [Dynamically search all filter values]
+  column: airline
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Value [Inverse selection]
+  column: destination_country
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Default]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Values are dependent on other filters]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Pre-filter available values]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Single Value]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Range Inputs]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Slider]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Numerical range [Filter has default value]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - 1
+  - 7969.2
+- name: Numerical range [Filter value is required]
+  column: cost
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - 1
+  - 7969.2
+- name: Time column [Default]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Time column [Sort filter values]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Time column [Filter has default value]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - travel_date
+- name: Time column [Filter value is required]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - travel_date
+- name: Time grain [Default]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Time grain [Sort filter values]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+- name: Time grain [Filter has default value]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - P1Y
+- name: Time grain [Filter value is required]
+  column: ''
+  dataset: tutorial_flights
+  filter_type: select
+  multi_select: true
+  default_value:
+  - P1Y
+- name: Time range [Default]
+  column: ''
+  dataset: ''
+  filter_type: date
+- name: Time range [Filter has default value]
+  column: ''
+  dataset: ''
+  filter_type: date
+  default_value: '2011-01-01T03:30:09 : 2011-12-31T00:00:00'
+- name: Time range [Filter value is required]
+  column: ''
+  dataset: ''
+  filter_type: date
+  default_value: '2011-01-01T00:00:00 : 2011-12-31T00:00:00'
+filter_bar_orientation: VERTICAL

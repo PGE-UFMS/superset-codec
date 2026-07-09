@@ -41,12 +41,18 @@ services:
         set -e
         SENTINEL="/app/superset_home/.superset-initialized"
         if [[ ! -f "$${SENTINEL}" ]]; then
+          echo ":: Superset first run: initializing"
           superset db upgrade
           superset fab create-admin \
             --username admin --firstname Superset --lastname Admin \
             --email admin@example.com --password admin || true
           superset init
+          echo ":: Superset initialized. Admin account created."
+          echo
+          echo ":: Load tutorial_flights table"
+          bash /app/load_tutorial_flights.sh
           touch "$${SENTINEL}"
+          echo ":: Setup complete"
         fi
         exec superset run -h 0.0.0.0 -p 8088
     depends_on:
@@ -58,6 +64,7 @@ services:
       SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
     volumes:
       - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - ./load_tutorial_flights.sh:/app/load_tutorial_flights.sh:ro
       - /app/superset_home
       
     healthcheck:

@@ -1,0 +1,55 @@
+# Chart name displayed on the dashboard
+slice_name: Chord Diagram [Default]
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: chord
+# Source table/dataset (must exist in datasets/)
+datasource_table: tutorial_flights
+# Visualization-specific configuration
+params:
+  viz_type: chord
+  slice_id: 303
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  groupby: origin_country
+  columns: destination_country
+  metric:
+    aggregate: COUNT
+    column:
+      column_name: department
+      type: TEXT
+    expressionType: SIMPLE
+    label: COUNT(*)
+    optionName: metric_count
+  adhoc_filters:
+  - clause: WHERE
+    subject: travel_date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    expressionType: SIMPLE
+  row_limit: 1000
+  y_axis_format: SMART_NUMBER
+  color_scheme: supersetColors
+  extra_form_data: {}
+  dashboards:
+  - 29

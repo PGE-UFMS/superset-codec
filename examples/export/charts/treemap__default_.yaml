@@ -1,0 +1,59 @@
+# Chart name displayed on the dashboard
+slice_name: Treemap [Default]
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: treemap_v2
+# Source table/dataset (must exist in datasets/)
+datasource_table: tutorial_flights
+# Visualization-specific configuration
+params:
+  viz_type: treemap_v2
+  slice_id: 297
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  groupby:
+  - airline
+  metric:
+    aggregate: SUM
+    column:
+      column_name: cost
+      type: FLOAT
+    expressionType: SIMPLE
+    label: SUM(cost)
+    optionName: metric_sum_cost
+  row_limit: 1000
+  adhoc_filters:
+  - clause: WHERE
+    comparator: No filter
+    expressionType: SIMPLE
+    operator: TEMPORAL_RANGE
+    subject: travel_date
+  color_scheme: supersetColors
+  show_labels: true
+  show_upper_labels: true
+  label_type: key_value
+  number_format: SMART_NUMBER
+  date_format: smart_date
+  extra_form_data: {}
+  dashboards:
+  - 32

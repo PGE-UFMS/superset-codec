@@ -1,0 +1,86 @@
+# Chart name displayed on the dashboard
+slice_name: Time-series Period Pivot [Default]
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: time_pivot
+# Source table/dataset (must exist in datasets/)
+datasource_table: tutorial_flights
+# Visualization-specific configuration
+params:
+  viz_type: time_pivot
+  slice_id: 284
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  granularity_sqla: travel_date
+  time_grain_sqla: P1M
+  time_range: '2011-01-01T00:00:00 : 2011-12-31T00:00:00'
+  metric:
+    aggregate: SUM
+    column:
+      advanced_data_type:
+      certification_details:
+      certified_by:
+      column_name: cost
+      description:
+      expression: ''
+      filterable: true
+      groupby: true
+      id: 1440
+      is_certified: false
+      is_dttm: false
+      python_date_format:
+      type: column
+      type_generic: 0
+      uuid: 2e3c83db-ce3e-44e6-a6bc-605b7984fe6c
+      verbose_name:
+      warning_markdown:
+    datasourceWarning: false
+    expressionType: SIMPLE
+    hasCustomLabel: false
+    label: SUM(cost)
+    optionName: metric_edakadzogc_zefspivxzrb
+    sqlExpression:
+  adhoc_filters: []
+  freq: AS
+  show_legend: true
+  line_interpolation: linear
+  color_picker:
+    a: 1
+    b: 135
+    g: 122
+    r: 0
+  x_axis_label: ''
+  bottom_margin: auto
+  x_axis_showminmax: false
+  x_axis_format: SMART_NUMBER
+  y_axis_label: ''
+  left_margin: auto
+  y_axis_showminmax: false
+  y_log_scale: false
+  y_axis_format: SMART_NUMBER
+  y_axis_bounds:
+  - 
+  - 
+  extra_form_data: {}
+  dashboards:
+  - 28

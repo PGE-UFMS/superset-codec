@@ -1,0 +1,158 @@
+# Chart name displayed on the dashboard
+slice_name: Cartodiagram [Default]
+# Visualization type (e.g. big_number_total, echarts_timeseries_bar)
+viz_type: cartodiagram
+# Source table/dataset (must exist in datasets/)
+datasource_table: tutorial_flights
+# Visualization-specific configuration
+params:
+  viz_type: cartodiagram
+  slice_id: 326
+  matrixify_enable: false
+  matrixify_mode_columns: disabled
+  matrixify_dimension_selection_mode_columns: members
+  matrixify_dimension_columns:
+    dimension: ''
+    values: []
+  matrixify_topn_value_columns: 10
+  matrixify_all_sort_by_columns: a_to_z
+  matrixify_topn_order_columns: true
+  matrixify_show_column_headers: true
+  matrixify_fit_columns_dynamically: true
+  matrixify_mode_rows: disabled
+  matrixify_dimension_selection_mode_rows: members
+  matrixify_dimension_rows:
+    dimension: ''
+    values: []
+  matrixify_topn_value_rows: 10
+  matrixify_all_sort_by_rows: a_to_z
+  matrixify_topn_order_rows: true
+  matrixify_show_row_labels: true
+  matrixify_row_height: 300
+  matrixify_charts_per_row: 4
+  matrixify_cell_title_template: ''
+  selected_chart: '{"id":325,"params":"{\"datasource\":\"44__table\",\"viz_type\":\"funnel\",\"slice_id\":325,\"matrixify_enable\":false,\"matrixify_mode_columns\":\"disabled\",\"matrixify_dimension_selection_mode_columns\":\"members\",\"matrixify_dimension_columns\":{\"dimension\":\"\",\"values\":[]},\"matrixify_topn_value_columns\":10,\"matrixify_all_sort_by_columns\":\"a_to_z\",\"matrixify_topn_order_columns\":true,\"matrixify_show_column_headers\":true,\"matrixify_fit_columns_dynamically\":true,\"matrixify_mode_rows\":\"disabled\",\"matrixify_dimension_selection_mode_rows\":\"members\",\"matrixify_dimension_rows\":{\"dimension\":\"\",\"values\":[]},\"matrixify_topn_value_rows\":10,\"matrixify_all_sort_by_rows\":\"a_to_z\",\"matrixify_topn_order_rows\":true,\"matrixify_show_row_labels\":true,\"matrixify_row_height\":300,\"matrixify_charts_per_row\":4,\"matrixify_cell_title_template\":\"\",\"groupby\":[\"airline\"],\"metric\":\"count\",\"adhoc_filters\":[{\"clause\":\"WHERE\",\"comparator\":\"No
+    filter\",\"expressionType\":\"SIMPLE\",\"operator\":\"TEMPORAL_RANGE\",\"subject\":\"travel_date\"}],\"row_limit\":10,\"sort_by_metric\":true,\"percent_calculation_type\":\"first_step\",\"color_scheme\":\"supersetColors\",\"show_legend\":true,\"legendOrientation\":\"top\",\"label_type\":0,\"tooltip_label_type\":5,\"number_format\":\"SMART_NUMBER\",\"show_labels\":true,\"show_tooltip_labels\":true,\"extra_form_data\":{},\"dashboards\":[30]}","slice_name":"Funnel
+    Chart [Default]","viz_type":"funnel"}'
+  geom_column: origin_cartodiagram
+  map_view:
+    fixedLatitude: 54.745485917889
+    fixedLongitude: -3.260694000305175
+    fixedZoom: 4.804743005588679
+    latitude: 54.745485917889
+    longitude: -3.260694000305175
+    mode: FIT_DATA
+    zoom: 4.804743005588679
+  layer_configs:
+  - attribution: © Map data from <a href="openstreetmap.org/copyright">OpenStreetMap</a>. Service provided by <a 
+      href="https://www.terrestris.de">terrestris GmbH & Co. KG</a>
+    layersParam: OSM-WMS
+    title: OpenStreetMap
+    type: WMS
+    url: https://ows.terrestris.de/osm-gray/service
+    version: 1.3.0
+  chart_background_color:
+    a: 0.2
+    b: 255
+    g: 255
+    r: 255
+  chart_background_border_radius: 10
+  chart_size:
+    configs:
+      exponent: 2
+      height: 100
+      slope: 30
+      width: 100
+      zoom: 1
+    type: FIXED
+    values:
+      '0':
+        height: 100
+        width: 100
+      '1':
+        height: 100
+        width: 100
+      '2':
+        height: 100
+        width: 100
+      '3':
+        height: 100
+        width: 100
+      '4':
+        height: 100
+        width: 100
+      '5':
+        height: 100
+        width: 100
+      '6':
+        height: 100
+        width: 100
+      '7':
+        height: 100
+        width: 100
+      '8':
+        height: 100
+        width: 100
+      '9':
+        height: 100
+        width: 100
+      '10':
+        height: 100
+        width: 100
+      '11':
+        height: 100
+        width: 100
+      '12':
+        height: 100
+        width: 100
+      '13':
+        height: 100
+        width: 100
+      '14':
+        height: 100
+        width: 100
+      '15':
+        height: 100
+        width: 100
+      '16':
+        height: 100
+        width: 100
+      '17':
+        height: 100
+        width: 100
+      '18':
+        height: 100
+        width: 100
+      '19':
+        height: 100
+        width: 100
+      '20':
+        height: 100
+        width: 100
+      '21':
+        height: 100
+        width: 100
+      '22':
+        height: 100
+        width: 100
+      '23':
+        height: 100
+        width: 100
+      '24':
+        height: 100
+        width: 100
+      '25':
+        height: 100
+        width: 100
+      '26':
+        height: 100
+        width: 100
+      '27':
+        height: 100
+        width: 100
+      '28':
+        height: 100
+        width: 100
+  extra_form_data: {}
+  dashboards:
+  - 31

@@ -1,0 +1,1568 @@
+dashboard_title: Map
+description: null
+css: ''
+slug: all-charts-all-charts---map
+certified_by: ''
+certification_details: ''
+published: true
+uuid: 11846fe5-22cc-400f-91c1-0ad58a095e23
+position:
+  CHART-07835dde:
+    children: []
+    id: CHART-07835dde
+    meta:
+      chartId: 323
+      height: 50
+      sliceName: deck.gl Multiple Layers [Default]
+      uuid: dfe729b3-ba36-44c6-bba3-1c47be2eeed6
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-d845442d
+    type: CHART
+  CHART-07b425ef:
+    children: []
+    id: CHART-07b425ef
+    meta:
+      chartId: 318
+      height: 50
+      sliceName: deck.gl Screengrid [Default]
+      uuid: 59882595-803c-4b38-8a5d-a8f6c697c8f4
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-77b6562e
+    type: CHART
+  CHART-3c80d8f3:
+    children: []
+    id: CHART-3c80d8f3
+    meta:
+      chartId: 309
+      height: 50
+      sliceName: Country Map [Default]
+      uuid: 762102d9-84d2-4e25-8890-52f70fdf9f9a
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-e38aeb15
+    type: CHART
+  CHART-64d80bcd:
+    children: []
+    id: CHART-64d80bcd
+    meta:
+      chartId: 319
+      height: 50
+      sliceName: deck.gl Contour [Custom Cell-Thresholds]
+      uuid: 7be18a9f-cc2c-4bbc-96ed-fddaefecf78b
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-77b6562e
+    type: CHART
+  CHART-7133695a:
+    children: []
+    id: CHART-7133695a
+    meta:
+      chartId: 310
+      height: 50
+      sliceName: World Map [Default]
+      uuid: cc291edf-5a84-4174-9777-4708984d915f
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-e38aeb15
+    type: CHART
+  CHART-8000e951:
+    children: []
+    id: CHART-8000e951
+    meta:
+      chartId: 322
+      height: 50
+      sliceName: deck.gl GeoJson [Default]
+      uuid: bf78d6f5-7dff-4463-ac19-d9bc1daf29ab
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-d845442d
+    type: CHART
+  CHART-bb8d6363:
+    children: []
+    id: CHART-bb8d6363
+    meta:
+      chartId: 311
+      height: 50
+      sliceName: MapBox [Default]
+      uuid: 5a273df9-c4d2-4113-ba73-7a9e90a6eca8
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-d0373e12
+    type: CHART
+  CHART-c2deb540:
+    children: []
+    id: CHART-c2deb540
+    meta:
+      chartId: 317
+      height: 50
+      sliceName: deck.gl Heatmap [Default]
+      uuid: cc76b44c-ff59-4cc7-a311-e65c8b93aa4a
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-84b1f53b
+    type: CHART
+  CHART-d591cc4e:
+    children: []
+    id: CHART-d591cc4e
+    meta:
+      chartId: 313
+      height: 50
+      sliceName: deck.gl Arc [Default]
+      uuid: af87dedc-642b-42c1-b712-2ee042ac491c
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-d0373e12
+    type: CHART
+  CHART-explore-326-1:
+    children: []
+    id: CHART-explore-326-1
+    meta:
+      chartId: 326
+      height: 50
+      sliceName: Cartodiagram [Default]
+      uuid: 592534b7-1057-45d7-9c46-45a145e42290
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-ddor5kJV2W-lnyFK9DAVQ
+    type: CHART
+  CHART-f02e21ff:
+    children: []
+    id: CHART-f02e21ff
+    meta:
+      chartId: 314
+      height: 50
+      sliceName: deck.gl Scatter [Default]
+      uuid: c9471546-089f-47e6-aea5-3b59f189bb0d
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-84b1f53b
+    type: CHART
+  DASHBOARD_VERSION_KEY: v2
+  GRID_ID:
+    children:
+    - ROW-e38aeb15
+    - ROW-d0373e12
+    - ROW-84b1f53b
+    - ROW-77b6562e
+    - ROW-d845442d
+    - ROW-ddor5kJV2W-lnyFK9DAVQ
+    id: GRID_ID
+    parents:
+    - ROOT_ID
+    type: GRID
+  HEADER_ID:
+    id: HEADER_ID
+    meta:
+      text: Map
+    type: HEADER
+  ROOT_ID:
+    children:
+    - GRID_ID
+    id: ROOT_ID
+    type: ROOT
+  ROW-77b6562e:
+    children:
+    - CHART-07b425ef
+    - CHART-64d80bcd
+    id: ROW-77b6562e
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+  ROW-84b1f53b:
+    children:
+    - CHART-f02e21ff
+    - CHART-c2deb540
+    id: ROW-84b1f53b
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+  ROW-d0373e12:
+    children:
+    - CHART-bb8d6363
+    - CHART-d591cc4e
+    id: ROW-d0373e12
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+  ROW-d845442d:
+    children:
+    - CHART-8000e951
+    - CHART-07835dde
+    id: ROW-d845442d
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+  ROW-ddor5kJV2W-lnyFK9DAVQ:
+    children:
+    - CHART-explore-326-1
+    id: ROW-ddor5kJV2W-lnyFK9DAVQ
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+  ROW-e38aeb15:
+    children:
+    - CHART-3c80d8f3
+    - CHART-7133695a
+    id: ROW-e38aeb15
+    meta:
+      background: BACKGROUND_TRANSPARENT
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    type: ROW
+metadata:
+  color_scheme_domain: []
+  shared_label_colors: []
+  map_label_colors:
+    Orange Department: '#1FA8C9'
+    Yellow Department: '#454E7C'
+    Purple Department: '#5AC189'
+    British Airways: '#1FA8C9'
+    Flybe: '#454E7C'
+    Easyjet: '#5AC189'
+    Norwegian: '#FF7F44'
+    TAP Air Portugal: '#666666'
+    Aer Lingus: '#E04355'
+    Air Malta: '#FCC700'
+    Aurigny: '#A868B7'
+    "Mal\xE9v Hungarian Airlines": '#3CCCCB'
+    Cimber Sterling: '#A38F79'
+    Air Berlin: '#8FD3E4'
+    Iceland Airways: '#A1A6BD'
+    Estonian Air: '#ACE1C4'
+    Monarch Airlines: '#FEC0A1'
+    KLM: '#B2B2B2'
+    Eastern Airways: '#EFA1AA'
+    Wizzair: '#FDE380'
+    Virgin Atlantic: '#D3B3DA'
+    Air Canada: '#9EE5E5'
+    Singapore Airlines: '#D1C6BC'
+    Korean Air: '#454E7C'
+    British Midland: '#5AC189'
+    Iberia: '#FF7F44'
+    Delta: '#666666'
+    Continental Airlines: '#E04355'
+    Air France: '#FCC700'
+    Finnair: '#A868B7'
+    Air China: '#3CCCCB'
+    Qantas: '#A38F79'
+    Lufthansa: '#8FD3E4'
+    South African Airways: '#A1A6BD'
+    Kingfisher Airlines: '#ACE1C4'
+    Jet Airways: '#FEC0A1'
+    TAM: '#B2B2B2'
+    Japan Air Lines: '#EFA1AA'
+    Scandinavian Airlines: '#FDE380'
+    Turkish Airlines: '#D3B3DA'
+    Alitalia: '#9EE5E5'
+    Royal Air Maroc: '#D1C6BC'
+    Swiss Airlines: '#D1C6BC'
+    Brussels Airlines: '#454E7C'
+    Hahn Air: '#5AC189'
+    Aeroflot: '#FF7F44'
+    Lot Polish Airlines: '#666666'
+    Misc.: '#E04355'
+    Ryanair: '#FCC700'
+    Bmibaby: '#A868B7'
+    Jet2: '#3CCCCB'
+    Emirates: '#A38F79'
+    Britannia Airways: '#8FD3E4'
+    Aer Arann Express: '#A1A6BD'
+    Air Southwest: '#ACE1C4'
+    Manx: '#FEC0A1'
+    United Airlines: '#B2B2B2'
+    Transaero: '#EFA1AA'
+    Air Europa: '#FDE380'
+    Aeromexico: '#D3B3DA'
+    Luxair: '#9EE5E5'
+    Blue Islands: '#9EE5E5'
+    China Eastern Airlines: '#D1C6BC'
+    Middle East Airlines: '#454E7C'
+    Croatia Airlines: '#5AC189'
+    Cathay Pacific: '#FF7F44'
+    Air Pacific: '#666666'
+    Cyprus Airways: '#E04355'
+    German Wings: '#FCC700'
+  label_colors: {}
+  chart_configuration:
+    '310':
+      id: 310
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 311
+        - 313
+        - 314
+        - 317
+        - 318
+        - 319
+        - 322
+        - 323
+        - 326
+    '313':
+      id: 313
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 314
+        - 317
+        - 318
+        - 319
+        - 322
+        - 323
+        - 326
+    '314':
+      id: 314
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 313
+        - 317
+        - 318
+        - 319
+        - 322
+        - 323
+        - 326
+    '317':
+      id: 317
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 313
+        - 314
+        - 318
+        - 319
+        - 322
+        - 323
+        - 326
+    '318':
+      id: 318
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 313
+        - 314
+        - 317
+        - 319
+        - 322
+        - 323
+        - 326
+    '319':
+      id: 319
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 313
+        - 314
+        - 317
+        - 318
+        - 322
+        - 323
+        - 326
+    '322':
+      id: 322
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 309
+        - 310
+        - 311
+        - 313
+        - 314
+        - 317
+        - 318
+        - 319
+        - 323
+        - 326
+  global_chart_configuration:
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    chartsInScope:
+    - 309
+    - 310
+    - 311
+    - 313
+    - 314
+    - 317
+    - 318
+    - 319
+    - 322
+    - 323
+    - 326
+  native_filter_configuration:
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-Ni0MQTaoEJf_MAdySRjhZ
+    name: Value [Default]
+    requiredFirst: {}
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: destination_country
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds:
+    - NATIVE_FILTER-Ni0MQTaoEJf_MAdySRjhZ
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-bLWRpYaKyt0UEVrrz1HSo
+    name: '[Value] Values are dependent on other filters '
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: airline
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - adhoc_filters:
+    - clause: WHERE
+      comparator: United Kingdom
+      datasourceWarning: false
+      expressionType: SIMPLE
+      filterOptionName: filter_ykf0oomqpwg_ns34lup7sag
+      isExtra: false
+      isNew: false
+      operator: ==
+      operatorId: EQUALS
+      sqlExpression: null
+      subject: origin_country
+    cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-n1Jx0SKzyUaaICrgy5ToO
+    name: Value [Pre-filter available values]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: origin_municipality
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    time_range: No filter
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+      sortAscending: true
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-LbfhWVJ8XioofI26VEk5d
+    name: Value [Sort filter values]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: origin_name
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: origin_country
+          op: IN
+          val:
+          - United Kingdom
+      filterState:
+        excludeFilterValues: true
+        label: United Kingdom
+        validateMessage: false
+        validateStatus: false
+        value:
+        - United Kingdom
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-ONDc6Cna5O967mro5EaGK
+    name: Value [Filter has default value]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: origin_country
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: true
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: origin_country
+          op: IN
+          val:
+          - United Kingdom
+      filterState:
+        excludeFilterValues: true
+        label: United Kingdom
+        validateMessage: false
+        validateStatus: false
+        value:
+        - United Kingdom
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-2CyIAuN8E-7XAk6cKXC3H
+    name: Value [Filter value is required]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: origin_country
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: true
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-AK6mpdqVqebrknkurDqoA
+    name: ' Value [Select first filter value by default]'
+    requiredFirst:
+      nativeEvent:
+        isTrusted: true
+      target:
+        checked: true
+        className: ant-wave-target css-14vilre
+        disabled: false
+        id: filters_NATIVE_FILTER-AK6mpdqVqebrknkurDqoA_controlValues_defaultToFirstItem
+        prefixCls: ant-checkbox
+        type: checkbox
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: ticket_single_or_return
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: false
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-KIqtK0XD78kgTSI1mgw7w
+    name: Value [Can't select multiple values]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: travel_class
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: false
+      multiSelect: true
+      searchAllOptions: true
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-dKaRkc_QoEjyOlCqIt-Dz
+    name: Value [Dynamically search all filter values]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: airline
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      creatable: true
+      defaultToFirstItem: false
+      enableEmptyFilter: false
+      inverseSelection: true
+      multiSelect: true
+      searchAllOptions: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_select
+    id: NATIVE_FILTER-0E5m9HLfaSLwIk9vXj1JI
+    name: Value [Inverse selection]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: destination_country
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-2fhTbsSBr10JvIG_lNPfq
+    name: Numerical range [Default]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds:
+    - NATIVE_FILTER-Ni0MQTaoEJf_MAdySRjhZ
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-GUDe4HwKOOyIJ_OoqpTOV
+    name: Numerical range [Values are dependent on other filters]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - adhoc_filters:
+    - clause: WHERE
+      comparator: United Kingdom
+      datasourceWarning: false
+      expressionType: SIMPLE
+      filterOptionName: filter_cerzzu79vyd_xnbvfoj0u6m
+      isExtra: false
+      isNew: false
+      operator: ==
+      operatorId: EQUALS
+      sqlExpression: null
+      subject: origin_country
+    cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-0paMUpEB7jUXmbh27t49y
+    name: Numerical range [Pre-filter available values]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    time_range: No filter
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      enableSingleValue: 1
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-FmYj9lpYCJlYUxIeB0wPp
+    name: Numerical range [Single Value]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: input
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-im9SD3MCB8QXxMXv1qn-Y
+    name: Numerical range [Range Inputs]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-UVqHtJz2cXNI-sULD9Mg8
+    name: Numerical range [Slider]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: cost
+          op: '>='
+          val: 1
+        - col: cost
+          op: <=
+          val: 7969.2
+      filterState:
+        label: "1 \u2264 x \u2264 7.97k"
+        validateMessage: ''
+        value:
+        - 1
+        - 7969.2
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-WPq9oDNSQBdO6_grmUEQN
+    name: Numerical range [Filter has default value]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: true
+      rangeDisplayMode: slider-and-input
+    defaultDataMask:
+      extraFormData:
+        filters:
+        - col: cost
+          op: '>='
+          val: 1
+        - col: cost
+          op: <=
+          val: 7969.2
+      filterState:
+        label: "1 \u2264 x \u2264 7.97k"
+        validateMessage: ''
+        value:
+        - 1
+        - 7969.2
+    description: ''
+    filterType: filter_range
+    id: NATIVE_FILTER-tuDMXPBFvEdEPQwaS8yhh
+    name: Numerical range [Filter value is required]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - column:
+        name: cost
+      datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - cascadeParentIds: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    description: ''
+    filterType: filter_timecolumn
+    id: NATIVE_FILTER-r_gaYCWw6Axg3LPyykHa3
+    name: Time column [Default]
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    sortMetric: null
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    type: NATIVE_FILTER
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-Sz9QQMU7a6uznIWGtpAUh
+    type: NATIVE_FILTER
+    name: Time column [Sort filter values]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+      sortAscending: true
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-g1HzNIjBZrbsljUaKUY7e
+    type: NATIVE_FILTER
+    name: Time column [Filter has default value]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData:
+        granularity_sqla: travel_date
+      filterState:
+        value:
+        - travel_date
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-IbC_LOPZSUT6eQGGC_qlX
+    type: NATIVE_FILTER
+    name: Time column [Filter value is required]
+    filterType: filter_timecolumn
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: true
+    defaultDataMask:
+      extraFormData:
+        granularity_sqla: travel_date
+      filterState:
+        value:
+        - travel_date
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-fVRaIjDDsS1aa2SY0sEGh
+    type: NATIVE_FILTER
+    name: Time grain [Default]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-Y6Lk3v3BlqaSPq-KtFVgS
+    type: NATIVE_FILTER
+    name: Time grain [Sort filter values]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    controlValues:
+      sortAscending: true
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-E8Wn2pzPhFcakVBMSoKDo
+    type: NATIVE_FILTER
+    name: Time grain [Filter has default value]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      excluded: []
+      rootPath:
+      - ROOT_ID
+    controlValues:
+      enableEmptyFilter: false
+    defaultDataMask:
+      extraFormData:
+        time_grain_sqla: P1Y
+      filterState:
+        value:
+        - P1Y
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - id: NATIVE_FILTER-s8IhCQ3OolH64wjd2WPRn
+    type: NATIVE_FILTER
+    name: Time grain [Filter value is required]
+    filterType: filter_timegrain
+    description: ''
+    targets:
+    - datasetUuid: a854ddeb-d172-4504-8db5-799864cae3e8
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    controlValues:
+      enableEmptyFilter: true
+    defaultDataMask:
+      extraFormData:
+        time_grain_sqla: P1Y
+      filterState:
+        label: Year
+        value:
+        - P1Y
+    cascadeParentIds: []
+    sortMetric: null
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - name: Time range [Default]
+    filterType: filter_time
+    description: ''
+    type: NATIVE_FILTER
+    defaultValueQueriesData: null
+    requiredFirst: {}
+    controlValues:
+      enableEmptyFilter: false
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    id: NATIVE_FILTER-RzeWFyXGNT_z2aDlwU2bZ
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - name: Time range [Filter has default value]
+    filterType: filter_time
+    description: ''
+    type: NATIVE_FILTER
+    defaultValueQueriesData: null
+    defaultValue: true
+    requiredFirst: {}
+    controlValues:
+      enableEmptyFilter: false
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    defaultDataMask:
+      extraFormData:
+        time_range: '2011-01-01T03:30:09 : 2011-12-31T00:00:00'
+      filterState:
+        value: '2011-01-01T03:30:09 : 2011-12-31T00:00:00'
+    id: NATIVE_FILTER-NIRLx0CCqthZBUWAuDpED
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  - name: Time range [Filter value is required]
+    filterType: filter_time
+    description: ''
+    type: NATIVE_FILTER
+    defaultValueQueriesData: null
+    requiredFirst: {}
+    controlValues:
+      enableEmptyFilter: true
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    defaultDataMask:
+      extraFormData:
+        time_range: '2011-01-01T00:00:00 : 2011-12-31T00:00:00'
+      filterState:
+        value: '2011-01-01T00:00:00 : 2011-12-31T00:00:00'
+    id: NATIVE_FILTER-i2knEODO2I2IbdGPc57Xx
+    chartsInScope:
+    - 314
+    - 318
+    - 319
+    - 317
+    - 322
+    - 323
+    - 310
+    - 313
+    - 309
+    - 311
+    - 326
+    tabsInScope: []
+  chart_customization_config: []
+  color_scheme: ''
+  refresh_frequency: 0
+  expanded_slices: {}
+  timed_refresh_immune_slices: []
+  cross_filters_enabled: true
+  default_filters: '{}'
+  filter_bar_orientation: VERTICAL
+theme_uuid: null
+version: 1.0.0
